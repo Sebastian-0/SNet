@@ -118,9 +118,9 @@ public class Server extends Network {
   public int getLatency(String id)
   {
     if (connectionListener != null) {
-      ServerConnection listener = connectionListener.getConnections().get(id);
-      if (listener != null)
-        return listener.getCurrentLatency();
+      ServerConnection connection = connectionListener.getConnections().get(id);
+      if (connection != null)
+        return connection.getCurrentLatency();
       else
         throw new IllegalArgumentException("No client with id: " + id);
     }

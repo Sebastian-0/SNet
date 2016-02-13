@@ -24,7 +24,7 @@ public class ServerConnectionListener
 {
   private ConnectionManagerInterface manager_;
   
-  private volatile Map<String, ServerConnection> listeners_;
+  private volatile Map<String, ServerConnection> connections_;
 
   private volatile int     port_;
   private volatile boolean couldNotConnect_;
@@ -39,7 +39,7 @@ public class ServerConnectionListener
     manager_ = manager;
     port_ = port;
     
-    listeners_ = Collections.synchronizedMap(new HashMap<String, ServerConnection>());
+    connections_ = Collections.synchronizedMap(new HashMap<String, ServerConnection>());
     
     thread.start();
   }
@@ -54,14 +54,14 @@ public class ServerConnectionListener
   {
     synchronized (this)
     {
-      return listeners_;
+      return connections_;
     }
   }
   
   
-  void terminated(ServerConnection listener)
+  void terminated(ServerConnection connection)
   {
-    listeners_.remove(listener.getId());
+    connections_.remove(connection.getId());
   }
   
   
@@ -78,8 +78,8 @@ public class ServerConnectionListener
   {
     if (isRunning_)
     {
-      for (ServerConnection sl : listeners_.values())
-        sl.stop();
+      for (ServerConnection connection : connections_.values())
+        connection.stop();
       
       isRunning_ = false;
       try {
@@ -104,9 +104,9 @@ public class ServerConnectionListener
       return true;
     
     boolean has = false;
-    for (ServerConnection l : listeners_.values())
+    for (ServerConnection connection : connections_.values())
     {
-      if (l.isConnected())
+      if (connection.isConnected())
       {
         has = true;
         break;
@@ -132,7 +132,7 @@ public class ServerConnectionListener
    */
   public void sendToAll(String message)
   {
-    for (ServerConnection sl : listeners_.values())
+    for (ServerConnection sl : connections_.values())
       sl.send(message);
   }
   
@@ -144,9 +144,9 @@ public class ServerConnectionListener
    */
   public void forward(Message message)
   {
-    for (ServerConnection sl : listeners_.values())
-      if (sl != message.receiver)
-        sl.send(message.message);
+    for (ServerConnection connection : connections_.values())
+      if (connection != message.receiver)
+        connection.send(message.message);
   }
   
   
@@ -185,10 +185,10 @@ public class ServerConnectionListener
           
           ServerConnection listener = new ServerConnection(manager_, connection, ServerConnectionListener.this);
           
-          while (listeners_.get(listener.getId()) != null)
+          while (connections_.get(listener.getId()) != null)
             listener.generateId();
           
-          listeners_.put(listener.getId(), listener);
+          connections_.put(listener.getId(), listener);
         } catch (IOException e) {
           if (isRunning_) // If 'false' the server's stop() has been invoked. In that case this exception is expected
             Debugger.error("Server: run()", "An error occured while waiting for a connection");

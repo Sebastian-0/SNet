@@ -53,10 +53,10 @@ public abstract class NetworkHook
    * </br>The message passed to this method will be disposed directly after
    *  this method has finished, they are not intended to be stored for further
    *  use.
-   * @param network The network used to manage the client/server connection
+   * @param server The network used to manage the client/server connection
    * @param message The message that was received
    */
-  public abstract void server(Network network, Message message);
+  public abstract void server(Server server, Message message);
   
   /**
    * This method will be invoked when the clients receives a message with a type
@@ -66,10 +66,10 @@ public abstract class NetworkHook
    * </br>The message passed to this method will be disposed directly after
    *  this method has finished, they are not intended to be stored for further
    *  use.
-   * @param network The network used to manage the client/server connection
+   * @param client The network used to manage the client/server connection
    * @param message The message that was received
    */
-  public abstract void client(Network network, Message message);
+  public abstract void client(Client client, Message message);
   
   /**
    * Returns the command code character used to identify this network hook,
