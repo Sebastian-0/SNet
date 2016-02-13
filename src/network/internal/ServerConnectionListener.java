@@ -50,7 +50,7 @@ public class ServerConnectionListener
    *  keys.
    * @return All the server listeners of this server
    */
-  public Map<String, ServerConnection> getServerListeners()
+  public Map<String, ServerConnection> getConnections()
   {
     synchronized (this)
     {

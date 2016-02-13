@@ -238,14 +238,14 @@ public abstract class AbstractConnection
     {
       if (isClosing_)
       {
+      	isConnected_ = false;
         manager_.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
-        isConnected_ = false;
       }
       else
       {
         send(EXIT_MESSAGE);
-        manager_.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
         isConnected_ = false;
+        manager_.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
       }
     }
     else if (msg.startsWith(PING_REQUEST_MESSAGE))
@@ -299,8 +299,8 @@ public abstract class AbstractConnection
       if (retries_++ >= MAXIMUM_RETRIES)
       {
         // Lost connection
+      	isConnected_ = false;
         manager_.disconnected(this, ConnectionManagerInterface.REASON_TIMEOUT, null);
-        isConnected_ = false;
       }
       else
       {
@@ -356,9 +356,9 @@ public abstract class AbstractConnection
   {
     if (isConnected_)
     {
+    	isClosing_ = true;
+    	isConnected_ = false;
       manager_.disconnected(this, ConnectionManagerInterface.REASON_LOST_CONNECTION, null);
-      isClosing_ = true;
-      isConnected_ = false;
     }
   }
 }
