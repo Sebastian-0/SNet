@@ -7,7 +7,7 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package network.internal;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,21 +22,21 @@ import sbasicgui.util.BasicUtils;
  * A class that represents and handles a link between the server and a client.
  * @author Sebastian Hjelm
  */
-public class ServerListener extends AbstractConnector
+public class ServerConnection extends AbstractConnection
 {
   private String id_;
   
-  private Server server_;
+  private ServerConnectionListener server_;
   
   
   /**
-   * Creates a {@code ServerListener} and links it with the specified socket and
+   * Creates a {@link ServerConnection} and links it with the specified socket and
    *  connection manager.
    * @param manager The connection manager to use
    * @param socket The socket to link this listener to
    * @param server The server this listener belongs to
    */
-  public ServerListener(ConnectionManagerInterface manager, Socket socket, Server server)
+  public ServerConnection(ConnectionManagerInterface manager, Socket socket, ServerConnectionListener server)
   {
     super (manager);
     
@@ -126,7 +126,7 @@ public class ServerListener extends AbstractConnector
       BasicUtils.closeSilently(writer_);
       BasicUtils.closeSilently(socket_);
       
-      server_.terminated(ServerListener.this);
+      server_.terminated(ServerConnection.this);
     }
   };
   

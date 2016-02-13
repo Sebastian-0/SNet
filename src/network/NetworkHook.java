@@ -9,6 +9,9 @@
 
 package network;
 
+import network.internal.AbstractConnection;
+import network.internal.Message;
+
 /**
  * This class describes an abstract network hook. Override it and add it to
  *  the list of hooks in {@code Network}. The hook will be invoked when
@@ -33,11 +36,11 @@ public abstract class NetworkHook
    *  unique. The command code is used to identify this network hook.
    * @param commandCode The command code character for this hook
    * @throws IllegalArgumentException If the message separator
-   *  ({@link AbstractConnector#SEPARATOR_CHAR}) is passed as the command code
+   *  ({@link AbstractConnection#SEPARATOR_CHAR}) is passed as the command code
    */
   public NetworkHook(char commandCode)
   {
-    if (commandCode == AbstractConnector.SEPARATOR_CHAR)
+    if (commandCode == AbstractConnection.SEPARATOR_CHAR)
       throw new IllegalArgumentException("Can't use the message seeparator as the command code");
     commandCode_ = commandCode;
   }

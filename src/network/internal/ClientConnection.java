@@ -7,7 +7,7 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package network.internal;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +17,7 @@ import java.nio.charset.Charset;
 
 import sbasicgui.util.BasicUtils;
 
-public class Client extends AbstractConnector
+public class ClientConnection extends AbstractConnection
 {
   private volatile String host_;
   private volatile int    port_;
@@ -25,7 +25,7 @@ public class Client extends AbstractConnector
   private volatile boolean couldNotConnect_;
   
   
-  public Client(ConnectionManagerInterface manager, String host, int port)
+  public ClientConnection(ConnectionManagerInterface manager, String host, int port)
   {
     super (manager);
     
@@ -72,7 +72,7 @@ public class Client extends AbstractConnector
       } catch (IOException e) {
         System.out.println("Client: <init>(): Unable to create socket! Host unreachable!");
         couldNotConnect_ = true;
-        manager_.failedToStart(null, Client.this);
+        manager_.failedToStart(null, ClientConnection.this);
         return;
       }
       

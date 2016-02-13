@@ -7,14 +7,14 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package network.internal;
 
 import sbasicgui.util.Pool;
 import sbasicgui.util.Poolable;
 
 /**
  * A class that describes a server/client message received through a socket. To
- *  create a message, use the {@link #createMessage(AbstractConnector, String)} method.
+ *  create a message, use the {@link #createMessage(AbstractConnection, String)} method.
  *  All the messages are stored within a pool when they are unused to spare the
  *  garbage collector some work.
  * @author Sebastian Hjelm
@@ -26,7 +26,7 @@ public class Message implements Poolable
   /**
    * The socket that sent the message.
    */
-  public volatile AbstractConnector receiver;
+  public volatile AbstractConnection receiver;
   /**
    * The text message itself.
    */
@@ -44,7 +44,7 @@ public class Message implements Poolable
   
   /**
    * Do <i>not</i> use this constructor! To create a message, use
-   *  {@link #createMessage(AbstractConnector, String)}!
+   *  {@link #createMessage(AbstractConnection, String)}!
    */
   public Message()
   {
@@ -67,7 +67,7 @@ public class Message implements Poolable
    * @param message The text message
    * @return A message connected with {@code sender}, containing {@code message}
    */
-  public static Message createMessage(AbstractConnector sender, String message)
+  public static Message createMessage(AbstractConnection sender, String message)
   {
     Message msg = pool_.acquire();
     msg.receiver    = sender;

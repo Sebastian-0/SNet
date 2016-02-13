@@ -7,7 +7,7 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package network.internal;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -20,11 +20,11 @@ import java.util.Map;
 import sbasicgui.util.Debugger;
 
 
-public class Server
+public class ServerConnectionListener
 {
   private ConnectionManagerInterface manager_;
   
-  private volatile Map<String, ServerListener> listeners_;
+  private volatile Map<String, ServerConnection> listeners_;
 
   private volatile int     port_;
   private volatile boolean couldNotConnect_;
@@ -34,12 +34,12 @@ public class Server
   private volatile boolean isRunning_;
   
   
-  public Server(ConnectionManagerInterface manager, int port)
+  public ServerConnectionListener(ConnectionManagerInterface manager, int port)
   {
     manager_ = manager;
     port_ = port;
     
-    listeners_ = Collections.synchronizedMap(new HashMap<String, ServerListener>());
+    listeners_ = Collections.synchronizedMap(new HashMap<String, ServerConnection>());
     
     thread.start();
   }
@@ -50,7 +50,7 @@ public class Server
    *  keys.
    * @return All the server listeners of this server
    */
-  public Map<String, ServerListener> getServerListeners()
+  public Map<String, ServerConnection> getServerListeners()
   {
     synchronized (this)
     {
@@ -59,7 +59,7 @@ public class Server
   }
   
   
-  void terminated(ServerListener listener)
+  void terminated(ServerConnection listener)
   {
     listeners_.remove(listener.getId());
   }
@@ -78,7 +78,7 @@ public class Server
   {
     if (isRunning_)
     {
-      for (ServerListener sl : listeners_.values())
+      for (ServerConnection sl : listeners_.values())
         sl.stop();
       
       isRunning_ = false;
@@ -104,7 +104,7 @@ public class Server
       return true;
     
     boolean has = false;
-    for (ServerListener l : listeners_.values())
+    for (ServerConnection l : listeners_.values())
     {
       if (l.isConnected())
       {
@@ -132,7 +132,7 @@ public class Server
    */
   public void sendToAll(String message)
   {
-    for (ServerListener sl : listeners_.values())
+    for (ServerConnection sl : listeners_.values())
       sl.send(message);
   }
   
@@ -144,7 +144,7 @@ public class Server
    */
   public void forward(Message message)
   {
-    for (ServerListener sl : listeners_.values())
+    for (ServerConnection sl : listeners_.values())
       if (sl != message.receiver)
         sl.send(message.message);
   }
@@ -183,7 +183,7 @@ public class Server
           Socket connection = socket_.accept();
           connection.setTcpNoDelay(true);
           
-          ServerListener listener = new ServerListener(manager_, connection, Server.this);
+          ServerConnection listener = new ServerConnection(manager_, connection, ServerConnectionListener.this);
           
           while (listeners_.get(listener.getId()) != null)
             listener.generateId();
@@ -218,7 +218,7 @@ public class Server
       isRunning_ = false;
       couldNotConnect_ = true;
       Debugger.error("Server: Thread: startFailed()", "Socket already used!");
-      manager_.failedToStart(Server.this, null);
+      manager_.failedToStart(ServerConnectionListener.this, null);
     }
   };
 }

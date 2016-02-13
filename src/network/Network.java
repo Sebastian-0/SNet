@@ -13,6 +13,12 @@ import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import network.internal.AbstractConnection;
+import network.internal.ClientConnection;
+import network.internal.ConnectionManagerInterface;
+import network.internal.Message;
+import network.internal.ServerConnection;
+import network.internal.ServerConnectionListener;
 import sbasicgui.util.Debugger;
 
 /**
@@ -33,10 +39,10 @@ public class Network
 {
   private static HashMap<Character, NetworkHook> hooks_;
   
-  private Client client_;
-  private Server server_;
+  private ClientConnection client_;
+  private ServerConnectionListener server_;
   
-  private ConnectionListener connectionListener_;
+  private ConnectionLifecycleListener connectionListener_;
   
   private BlockingQueue<Message> queuedMessages_;
   private boolean waitForPoll_;
@@ -62,13 +68,13 @@ public class Network
    * @param host The host server address
    * @param port The host server port
    */
-  public Network(ConnectionListener connectionListener, String host, int port)
+  public Network(ConnectionLifecycleListener connectionListener, String host, int port)
   {
     this ();
     
     connectionListener_ = connectionListener;
     
-    client_ = new Client(connectionManager, host, port);
+    client_ = new ClientConnection(connectionManager, host, port);
   }
   
   
@@ -79,13 +85,13 @@ public class Network
    * @param connectionListener The connection listener to use
    * @param port The host server port
    */
-  public Network(ConnectionListener connectionListener, int port)
+  public Network(ConnectionLifecycleListener connectionListener, int port)
   {
     this ();
     
     connectionListener_ = connectionListener;
     
-    server_ = new Server(connectionManager, port);
+    server_ = new ServerConnectionListener(connectionManager, port);
   }
   
   
@@ -169,7 +175,7 @@ public class Network
       client_.send(message.message);
     else if (server_ != null)
     {
-      ServerListener listener = server_.getServerListeners().get(id);
+      ServerConnection listener = server_.getServerListeners().get(id);
       if (listener != null)
         listener.send(message.message);
       else
@@ -304,7 +310,7 @@ public class Network
       return client_.getCurrentLatency();
     else if (server_ != null)
     {
-      ServerListener listener = server_.getServerListeners().get(id);
+      ServerConnection listener = server_.getServerListeners().get(id);
       if (listener != null)
         return listener.getCurrentLatency();
       else
@@ -358,7 +364,7 @@ public class Network
     }
     
     @Override
-    public void failedToStart(Server server, Client client) {
+    public void failedToStart(ServerConnectionListener server, ClientConnection client) {
       connectionListener_.failedToStart();
     }
     
@@ -370,19 +376,19 @@ public class Network
     }
     
     @Override
-    public void connected(AbstractConnector connector)
+    public void connected(AbstractConnection connector)
     {
-      if (connector instanceof ServerListener)
-        connectionListener_.connected(((ServerListener)connector).getId());
+      if (connector instanceof ServerConnection)
+        connectionListener_.connected(((ServerConnection)connector).getId());
       else
         connectionListener_.connected(null);
     }
     
     @Override
-    public void disconnected(AbstractConnector connector, byte reason, String message)
+    public void disconnected(AbstractConnection connector, byte reason, String message)
     {
-      if (connector instanceof ServerListener)
-        connectionListener_.disconnected(((ServerListener)connector).getId(), reason, message);
+      if (connector instanceof ServerConnection)
+        connectionListener_.disconnected(((ServerConnection)connector).getId(), reason, message);
       else
         connectionListener_.disconnected(null, reason, message);
     }

@@ -7,7 +7,7 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package network.internal;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * A class that works common super class for both server and client networking.
  * @author Sebastian Hjelm
  */
-public abstract class AbstractConnector
+public abstract class AbstractConnection
 {
   /**
    * The message that is sent from the server and client before any communication
@@ -103,7 +103,7 @@ public abstract class AbstractConnector
    *  the specified connection manager.
    * @param manager The connection manager to connect this connection with
    */
-  public AbstractConnector(ConnectionManagerInterface manager)
+  public AbstractConnection(ConnectionManagerInterface manager)
   {
     manager_ = manager;
     

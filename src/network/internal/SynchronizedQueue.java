@@ -7,7 +7,7 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package network.internal;
 
 import java.util.Collection;
 import java.util.Iterator;

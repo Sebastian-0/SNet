@@ -9,11 +9,13 @@
 
 package network;
 
+import network.internal.ConnectionManagerInterface;
+
 /**
  * An interface used in conjunction with {@code Network} to listen for disconnects.
  * @author Sebastian Hjelm
  */
-public interface ConnectionListener
+public interface ConnectionLifecycleListener
 {
   /**
    * This method is invoked if the client failed to establish a connection to the
