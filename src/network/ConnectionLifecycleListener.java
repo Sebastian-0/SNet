@@ -15,8 +15,7 @@ import network.internal.ConnectionManagerInterface;
  * An interface used in conjunction with {@code Network} to listen for disconnects.
  * @author Sebastian Hjelm
  */
-public interface ConnectionLifecycleListener
-{
+public interface ConnectionLifecycleListener {
   /**
    * This method is invoked if the client failed to establish a connection to the
    *  server (if this is a client), or if the server failed to start (if this

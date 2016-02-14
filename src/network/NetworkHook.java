@@ -91,7 +91,7 @@ public abstract class NetworkHook<E> {
    * @param id The id for this subscriber to use
    * @param subscriber The object that wants to subscribe
    */
-  public void subscribe(int id, E subscriber) { // TODO javadoc
+  public void subscribe(int id, E subscriber) {
   	subscribedObjects.put(id, subscriber);
   }
   /**

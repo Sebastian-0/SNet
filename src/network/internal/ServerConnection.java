@@ -22,8 +22,7 @@ import sbasicgui.util.BasicUtils;
  * A class that represents and handles a link between the server and a client.
  * @author Sebastian Hjelm
  */
-public class ServerConnection extends AbstractConnection
-{
+public class ServerConnection extends AbstractConnection {
   private String id_;
   
   private ServerConnectionListener server_;
@@ -36,8 +35,7 @@ public class ServerConnection extends AbstractConnection
    * @param socket The socket to link this listener to
    * @param server The server this listener belongs to
    */
-  public ServerConnection(ConnectionManagerInterface manager, Socket socket, ServerConnectionListener server)
-  {
+  public ServerConnection(ConnectionManagerInterface manager, Socket socket, ServerConnectionListener server) {
     super (manager);
     
     generateId();
@@ -57,14 +55,12 @@ public class ServerConnection extends AbstractConnection
    *  listener is created.
    * @return The id of this server listener
    */
-  public String getId()
-  {
+  public String getId() {
     return id_;
   }
   
   
-  void generateId()
-  {
+  void generateId() {
     StringBuilder b = new StringBuilder();
     for (int i = 0; i < 20; i++)
       b.append(generateChar());
@@ -73,8 +69,7 @@ public class ServerConnection extends AbstractConnection
   }
   
   
-  private char generateChar()
-  {
+  private char generateChar() {
     return (char)((('z' - '0') * Math.random()) + '0');
   }
   
@@ -86,8 +81,7 @@ public class ServerConnection extends AbstractConnection
     }
     
     @Override
-    public void run()
-    {
+    public void run() {
       // TODO ServerListener; Dela in detta i flera try-statements för att lättare hitta fel?
       try {
         reader_ = new InputStreamReader (socket_.getInputStream (), Charset.forName("UTF-8"));
@@ -102,11 +96,9 @@ public class ServerConnection extends AbstractConnection
       readThread.start();
       writeThread.start();
       
-      while (isConnected_)
-      {
+      while (isConnected_) {
         // We lost the connection unexpectedly
-        if (socket_.isClosed())
-        {
+        if (socket_.isClosed()) {
           lostConnection();
           break;
         }
@@ -117,8 +109,7 @@ public class ServerConnection extends AbstractConnection
       
       writeThread.interrupt();
       
-      while (readThread.isAlive() || writeThread.isAlive())
-      {
+      while (readThread.isAlive() || writeThread.isAlive()) {
         try { Thread.sleep(10); } catch (InterruptedException e) { }
       }
       
@@ -138,10 +129,8 @@ public class ServerConnection extends AbstractConnection
     }
     
     @Override
-    public void run()
-    {
-      while (isConnected_)
-      {
+    public void run() {
+      while (isConnected_) {
         read();
       }
     }
@@ -155,15 +144,11 @@ public class ServerConnection extends AbstractConnection
     }
     
     @Override
-    public void run()
-    {
-      while (isConnected_)
-      {
-        if (!hasBeenGreeted_ || messages_.isEmpty())
-        {
+    public void run() {
+      while (isConnected_) {
+        if (!hasBeenGreeted_ || messages_.isEmpty()) {
           lock.lock();
-          try
-          {
+          try {
             condition.await();
           }
           catch (InterruptedException e1) { }

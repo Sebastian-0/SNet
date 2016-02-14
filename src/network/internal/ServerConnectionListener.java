@@ -20,8 +20,7 @@ import java.util.Map;
 import sbasicgui.util.Debugger;
 
 
-public class ServerConnectionListener
-{
+public class ServerConnectionListener {
   private ConnectionManagerInterface manager_;
   
   private volatile Map<String, ServerConnection> connections_;
@@ -34,8 +33,7 @@ public class ServerConnectionListener
   private volatile boolean isRunning_;
   
   
-  public ServerConnectionListener(ConnectionManagerInterface manager, int port)
-  {
+  public ServerConnectionListener(ConnectionManagerInterface manager, int port) {
     manager_ = manager;
     port_ = port;
     
@@ -50,17 +48,14 @@ public class ServerConnectionListener
    *  keys.
    * @return All the server listeners of this server
    */
-  public Map<String, ServerConnection> getConnections()
-  {
-    synchronized (this)
-    {
+  public Map<String, ServerConnection> getConnections() {
+    synchronized (this) {
       return connections_;
     }
   }
   
   
-  void terminated(ServerConnection connection)
-  {
+  void terminated(ServerConnection connection) {
     connections_.remove(connection.getId());
   }
   
@@ -74,10 +69,8 @@ public class ServerConnectionListener
    *  of the connection manager connected with this connection will be invoked
    *  when the response for each connection arrives.
    */
-  public void stop()
-  {
-    if (isRunning_)
-    {
+  public void stop() {
+    if (isRunning_) {
       for (ServerConnection connection : connections_.values())
         connection.stop();
       
@@ -85,9 +78,7 @@ public class ServerConnectionListener
       try {
         socket_.close();
       } catch (IOException e) { }
-    }
-    else
-    {
+    } else {
       thread.interrupt();
     }
   }
@@ -98,16 +89,13 @@ public class ServerConnectionListener
    *  and all connections haven't closed yet.
    * @return True if this server is connected
    */
-  public boolean isConnected()
-  {
+  public boolean isConnected() {
     if (isRunning_)
       return true;
     
     boolean has = false;
-    for (ServerConnection connection : connections_.values())
-    {
-      if (connection.isConnected())
-      {
+    for (ServerConnection connection : connections_.values()) {
+      if (connection.isConnected()) {
         has = true;
         break;
       }
@@ -120,8 +108,7 @@ public class ServerConnectionListener
    * Returns true if this server failed to initialize.
    * @return True if this server failed to initialize
    */
-  public boolean couldNotConnect()
-  {
+  public boolean couldNotConnect() {
     return couldNotConnect_;
   }
   
@@ -130,8 +117,7 @@ public class ServerConnectionListener
    * Sends the specified message to all clients.
    * @param message The message to send
    */
-  public void sendToAll(String message)
-  {
+  public void sendToAll(String message) {
     for (ServerConnection sl : connections_.values())
       sl.send(message);
   }
@@ -142,8 +128,7 @@ public class ServerConnectionListener
    *  from).
    * @param message The message to forward
    */
-  public void forward(Message message)
-  {
+  public void forward(Message message) {
     for (ServerConnection connection : connections_.values())
       if (connection != message.receiver)
         connection.send(message.message);
@@ -157,10 +142,8 @@ public class ServerConnectionListener
     }
     
     @Override
-    public void run()
-    {
-      if (!isPortAvailable(port_))
-      {
+    public void run() {
+      if (!isPortAvailable(port_)) {
         startFailed();
         return;
       }
@@ -177,8 +160,7 @@ public class ServerConnectionListener
       isRunning_ = true;
       manager_.serverStarted(socket_.getLocalPort());
       
-      while (isRunning_)
-      {
+      while (isRunning_) {
         try {
           Socket connection = socket_.accept();
           connection.setTcpNoDelay(true);
@@ -196,12 +178,9 @@ public class ServerConnectionListener
       }
     }
 
-    private boolean isPortAvailable(int port)
-    {
-      if (port != 0)
-      {
-        try
-        {
+    private boolean isPortAvailable(int port) {
+      if (port != 0) {
+        try {
           Socket socket = new Socket("localhost", port);
           socket.close();
           return false;
@@ -213,8 +192,7 @@ public class ServerConnectionListener
       return true;
     }
 
-    private void startFailed()
-    {
+    private void startFailed() {
       isRunning_ = false;
       couldNotConnect_ = true;
       Debugger.error("Server: Thread: startFailed()", "Socket already used!");

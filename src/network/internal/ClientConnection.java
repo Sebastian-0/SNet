@@ -17,16 +17,14 @@ import java.nio.charset.Charset;
 
 import sbasicgui.util.BasicUtils;
 
-public class ClientConnection extends AbstractConnection
-{
+public class ClientConnection extends AbstractConnection {
   private volatile String host_;
   private volatile int    port_;
   
   private volatile boolean couldNotConnect_;
   
   
-  public ClientConnection(ConnectionManagerInterface manager, String host, int port)
-  {
+  public ClientConnection(ConnectionManagerInterface manager, String host, int port) {
     super (manager);
     
     host_ = host;
@@ -39,8 +37,7 @@ public class ClientConnection extends AbstractConnection
    * Returns true if this client failed to connect to the server.
    * @return True if this client failed to connect to the server
    */
-  public boolean couldNotConnect()
-  {
+  public boolean couldNotConnect() {
     return couldNotConnect_;
   }
   
@@ -59,8 +56,7 @@ public class ClientConnection extends AbstractConnection
     }
     
     @Override
-    public void run()
-    {
+    public void run() {
       // Attempt connection
       // TODO Client; Dela in detta i flera try-statements för att lättare hitta fel?
       try {
@@ -81,11 +77,9 @@ public class ClientConnection extends AbstractConnection
       readThread.start();
       writeThread.start();
       
-      while (isConnected_)
-      {
+      while (isConnected_) {
         // We lost the connection unexpectedly
-        if (socket_.isClosed())
-        {
+        if (socket_.isClosed()) {
           lostConnection();
           break;
         }
@@ -96,8 +90,7 @@ public class ClientConnection extends AbstractConnection
       
       writeThread.interrupt();
       
-      while (readThread.isAlive() || writeThread.isAlive())
-      {
+      while (readThread.isAlive() || writeThread.isAlive()) {
         try { Thread.sleep(10); } catch (InterruptedException e) { }
       }
       
@@ -115,10 +108,8 @@ public class ClientConnection extends AbstractConnection
     }
     
     @Override
-    public void run()
-    {
-      while (isConnected_)
-      {
+    public void run() {
+      while (isConnected_) {
         read();
       }
     }
@@ -132,15 +123,11 @@ public class ClientConnection extends AbstractConnection
     }
     
     @Override
-    public void run()
-    {
-      while (isConnected_)
-      {
-        if (!hasBeenGreeted_ || messages_.isEmpty())
-        {
+    public void run() {
+      while (isConnected_) {
+        if (!hasBeenGreeted_ || messages_.isEmpty()) {
           lock.lock();
-          try
-          {
+          try {
             condition.await();
           }
           catch (InterruptedException e1) { }

@@ -19,8 +19,7 @@ import sbasicgui.util.Poolable;
  *  garbage collector some work.
  * @author Sebastian Hjelm
  */
-public class Message implements Poolable
-{
+public class Message implements Poolable {
   private static volatile Pool<Message> pool_;
   
   /**
@@ -43,8 +42,7 @@ public class Message implements Poolable
   private volatile boolean isDisposed_;
   
   
-  static
-  {
+  static {
     pool_ = new Pool<Message>(Message.class);
     pool_.allocate(10);
   }
@@ -54,9 +52,7 @@ public class Message implements Poolable
    * Do <i>not</i> use this constructor! To create a message, use
    *  {@link #createMessage(AbstractConnection, String)}!
    */
-  public Message()
-  {
-  }
+  public Message() { }
   
   
   /**
@@ -64,8 +60,7 @@ public class Message implements Poolable
    * @param message The text message
    * @return A message connected with {@code sender}, containing {@code message}
    */
-  public static Message createMessage(String message)
-  {
+  public static Message createMessage(String message) {
     return createMessage(null, message);
   }
   /**
@@ -75,8 +70,7 @@ public class Message implements Poolable
    * @param message The text message
    * @return A message connected with {@code sender}, containing {@code message}
    */
-  public static Message createMessage(AbstractConnection sender, String message)
-  {
+  public static Message createMessage(AbstractConnection sender, String message) {
     Message msg = pool_.acquire();
     msg.receiver    = sender;
     msg.commandCode = message.charAt(0);
@@ -91,8 +85,7 @@ public class Message implements Poolable
    * Returns the message text without the leading command code.
    * @return The message text without the command code
    */
-  public String extract()
-  {
+  public String extract() {
     return message.substring(2);
   }
   
@@ -101,10 +94,8 @@ public class Message implements Poolable
    * Disposes this message and adds it to the message pool. This method should
    *  always be invoked when the message isn't needed anymore.
    */
-  public void dispose()
-  {
-    if (!isDisposed_)
-    {
+  public void dispose() {
+    if (!isDisposed_) {
       receiver = null;
       message = null;
       pool_.store(this);

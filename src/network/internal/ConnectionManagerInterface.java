@@ -15,8 +15,7 @@ package network.internal;
  *  the messages that have been received.
  * @author Sebastian Hjelm
  */
-public interface ConnectionManagerInterface
-{
+public interface ConnectionManagerInterface {
   /**
    * The connection closed normally, either the server or the client sent a
    *  message saying the connection was to be terminated.
