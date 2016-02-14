@@ -47,7 +47,7 @@ public class Server extends Network {
   }
   
   @Override
-  protected void dispatchMessage(Message message, NetworkHook hook) {
+  protected void dispatchMessage(Message message, NetworkHook<?> hook) {
   	hook.server(this, message);
   }
   

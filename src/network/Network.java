@@ -31,14 +31,14 @@ import sbasicgui.util.Debugger;
  * @author Sebastian Hjelm
  */
 public abstract class Network {
-  private static HashMap<Character, NetworkHook> hooks;
+  private static HashMap<Character, NetworkHook<?>> hooks;
   
   private BlockingQueue<Message> queuedMessages;
   private boolean waitForPoll;
   
   
   static {
-    hooks = new HashMap<Character, NetworkHook>();
+    hooks = new HashMap<Character, NetworkHook<?>>();
   }
   
   
@@ -91,7 +91,7 @@ public abstract class Network {
   }
 
   private void processMessage(Message message, String methodName) {
-    NetworkHook hook = hooks.get(message.message.charAt(0));
+    NetworkHook<?> hook = hooks.get(message.message.charAt(0));
     if (hook != null) {
       try {
         dispatchMessage(message, hook);
@@ -105,7 +105,7 @@ public abstract class Network {
     }
   }
 
-	protected abstract void dispatchMessage(Message message, NetworkHook hook);
+	protected abstract void dispatchMessage(Message message, NetworkHook<?> hook);
   
 	
   /**
@@ -199,7 +199,7 @@ public abstract class Network {
    * @throws IllegalArgumentException If there already is a network hook with the
    *  command code used by the new hook.
    */
-  public static void registerHook(NetworkHook networkHook) {
+  public static void registerHook(NetworkHook<?> networkHook) {
     if (hooks.get(networkHook.getCommandCode()) == null) {
       hooks.put(networkHook.getCommandCode(), networkHook);
       return;

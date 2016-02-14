@@ -27,6 +27,14 @@ public class Message implements Poolable
    * The socket that sent the message.
    */
   public volatile AbstractConnection receiver;
+
+  /**
+   * The network hook command code associated with this message
+   */
+  public volatile char commandCode;
+  
+  public volatile int targetedSubscriberId;
+  
   /**
    * The text message itself.
    */
@@ -71,6 +79,8 @@ public class Message implements Poolable
   {
     Message msg = pool_.acquire();
     msg.receiver    = sender;
+    msg.commandCode = message.charAt(0);
+    msg.targetedSubscriberId = (int)message.charAt(1);
     msg.message     = message;
     msg.isDisposed_ = false;
     return msg;
@@ -83,7 +93,7 @@ public class Message implements Poolable
    */
   public String extract()
   {
-    return message.substring(1);
+    return message.substring(2);
   }
   
   

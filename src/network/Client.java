@@ -48,7 +48,7 @@ public class Client extends Network {
   
 
 	@Override
-	protected void dispatchMessage(Message message, NetworkHook hook) {
+	protected void dispatchMessage(Message message, NetworkHook<?> hook) {
 		hook.client(this, message);
 	}
   
