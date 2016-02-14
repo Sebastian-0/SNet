@@ -65,36 +65,36 @@ public abstract class AbstractConnection {
   public static final int MAXIMUM_RETRIES = 10000; // TODO AbstractConnector; Återställ konstanten till 10
   
   
-  protected volatile ConnectionManagerInterface manager_;
+  protected volatile ConnectionManagerInterface connectionManager;
 
-  protected volatile Socket socket_;
+  protected volatile Socket socket;
   
-  protected volatile Reader reader_;
-  protected volatile Writer writer_;
+  protected volatile Reader reader;
+  protected volatile Writer writer;
 
-  protected volatile boolean isClosing_;
-  protected volatile boolean isConnected_;
+  protected volatile boolean isClosing;
+  protected volatile boolean isConnected;
   
   
-  protected volatile Queue<String> messages_;
+  protected volatile Queue<String> messages;
   
   protected volatile Lock lock;
   protected volatile Condition condition;
   
-  private StringBuilder builder_;
-  private char[]        chars_;
+  private StringBuilder builder;
+  private char[]        chars;
   
-  protected boolean hasBeenGreeted_;
+  protected boolean hasBeenGreeted;
   
-  private int     pingInterval_;
-  private int     currentLatency_;
+  private int     pingInterval;
+  private int     currentLatency;
   
-  private long    lastPing_;
-  private int     lastPingNumber_;
-  private String  pingMessage_;
+  private long    lastPing;
+  private int     lastPingNumber;
+  private String  pingMessage;
   
-  private boolean hasRecievedAnswer_;
-  private int     retries_;
+  private boolean hasRecievedAnswer;
+  private int     retries;
   
   
   /**
@@ -103,15 +103,15 @@ public abstract class AbstractConnection {
    * @param manager The connection manager to connect this connection with
    */
   public AbstractConnection(ConnectionManagerInterface manager) {
-    manager_ = manager;
+    this.connectionManager = manager;
     
-    messages_ = new SynchronizedQueue<String>(new LinkedList<String>());
+    messages = new SynchronizedQueue<String>(new LinkedList<String>());
     
-    builder_ = new StringBuilder();
-    chars_   = new char[512];
+    builder = new StringBuilder();
+    chars   = new char[512];
     
-    hasRecievedAnswer_ = true;
-    pingInterval_ = 500;
+    hasRecievedAnswer = true;
+    pingInterval = 500;
     
     lock = new ReentrantLock();
     condition = lock.newCondition();
@@ -124,7 +124,7 @@ public abstract class AbstractConnection {
    * @return The current ping latency of this connector
    */
   public int getCurrentLatency() {
-    return currentLatency_;
+    return currentLatency;
   }
   
   
@@ -133,7 +133,7 @@ public abstract class AbstractConnection {
    * @return True if the connection to the server was established
    */
   public boolean isConnected() {
-    return isConnected_;
+    return isConnected;
   }
   
   
@@ -148,7 +148,7 @@ public abstract class AbstractConnection {
    */
   public void stop() {
     send(EXIT_MESSAGE);
-    isClosing_ = true;
+    isClosing = true;
   }
   
   
@@ -157,8 +157,8 @@ public abstract class AbstractConnection {
    * @param message The message to send
    */
   public void send(String message) {
-    if (!isClosing_) {
-      messages_.offer(SEPARATOR_CHAR + message + SEPARATOR_CHAR);
+    if (!isClosing) {
+      messages.offer(SEPARATOR_CHAR + message + SEPARATOR_CHAR);
       lock.lock();
       condition.signalAll();
       lock.unlock();
@@ -169,7 +169,7 @@ public abstract class AbstractConnection {
   protected void sendHello() {
     writeString(SEPARATOR_CHAR + HELLO_MESSAGE + SEPARATOR_CHAR);
     try {
-      writer_.flush();
+      writer.flush();
     } catch (IOException e) { }
   }
   
@@ -179,17 +179,17 @@ public abstract class AbstractConnection {
    */
   protected void read() {
     // Read
-    int amount = readChars(chars_);
+    int amount = readChars(chars);
     if (amount > 0) {
-      builder_.append(chars_, 0, amount);
+      builder.append(chars, 0, amount);
       
       while (readReady()) {
-        amount = readChars(chars_);
-        builder_.append(chars_, 0, amount);
+        amount = readChars(chars);
+        builder.append(chars, 0, amount);
       }
       
-      String receivedString = builder_.toString();
-      builder_.setLength(0);
+      String receivedString = builder.toString();
+      builder.setLength(0);
       
       int startIndex = receivedString.indexOf(SEPARATOR_CHAR);
       int endIndex = receivedString.indexOf(SEPARATOR_CHAR, startIndex+1);
@@ -203,7 +203,7 @@ public abstract class AbstractConnection {
       }
       
       if (startIndex != -1) { // We have a message that didn't fully arrive
-        builder_.append(receivedString.substring(startIndex, receivedString.length()));
+        builder.append(receivedString.substring(startIndex, receivedString.length()));
       }
     }
   }
@@ -212,34 +212,34 @@ public abstract class AbstractConnection {
     msg = msg.trim();
     
     if (msg.equals(HELLO_MESSAGE)) {
-      hasBeenGreeted_ = true;
+      hasBeenGreeted = true;
       lock.lock();
       condition.signalAll();
       lock.unlock();
-      manager_.connected(this);
+      connectionManager.connected(this);
     }
     else if (msg.equals(EXIT_MESSAGE)) {
-      if (isClosing_) {
-      	isConnected_ = false;
-        manager_.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
+      if (isClosing) {
+      	isConnected = false;
+        connectionManager.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
       } else {
         send(EXIT_MESSAGE);
-        isConnected_ = false;
-        manager_.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
+        isConnected = false;
+        connectionManager.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
       }
     }
     else if (msg.startsWith(PING_REQUEST_MESSAGE)) {
       send(PING_ANSWER_MESSAGE + msg.substring(PING_REQUEST_MESSAGE.length()));
     }
     else if (msg.startsWith(PING_ANSWER_MESSAGE)) {
-      if (msg.substring(PING_ANSWER_MESSAGE.length()).equals(pingMessage_)) { // ping arrived in
-        currentLatency_ = (int)(System.currentTimeMillis() - lastPing_);
-        retries_ = 0;
-        hasRecievedAnswer_ = true;
+      if (msg.substring(PING_ANSWER_MESSAGE.length()).equals(pingMessage)) { // ping arrived in
+        currentLatency = (int)(System.currentTimeMillis() - lastPing);
+        retries = 0;
+        hasRecievedAnswer = true;
       }
     }
     else if (!msg.equals("")) { // Dispatch
-      manager_.receivedMessage(Message.createMessage(this, msg));
+      connectionManager.receivedMessage(Message.createMessage(this, msg));
     }
     return msg;
   }
@@ -249,28 +249,28 @@ public abstract class AbstractConnection {
    * A method that writes all available messages and dispatches them.
    */
   protected void write() {
-    int s = messages_.size();
+    int s = messages.size();
     int c = 0;
-    while (!messages_.isEmpty() && c++ < s)
-      writeString(messages_.poll());
+    while (!messages.isEmpty() && c++ < s)
+      writeString(messages.poll());
     
     try {
-      writer_.flush();
+      writer.flush();
     } catch (IOException e) { }
   }
   
   
   protected void attemptPing() {
-    if (hasRecievedAnswer_) {
-      if (System.currentTimeMillis() - lastPing_ > pingInterval_) {
+    if (hasRecievedAnswer) {
+      if (System.currentTimeMillis() - lastPing > pingInterval) {
         sendPing();
       }
     }
-    else if (System.currentTimeMillis() - lastPing_ > MAXIMUM_LATENCY) {
-      if (retries_++ >= MAXIMUM_RETRIES) {
+    else if (System.currentTimeMillis() - lastPing > MAXIMUM_LATENCY) {
+      if (retries++ >= MAXIMUM_RETRIES) {
         // Lost connection
-      	isConnected_ = false;
-        manager_.disconnected(this, ConnectionManagerInterface.REASON_TIMEOUT, null);
+      	isConnected = false;
+        connectionManager.disconnected(this, ConnectionManagerInterface.REASON_TIMEOUT, null);
       } else {
         sendPing();
       }
@@ -278,20 +278,20 @@ public abstract class AbstractConnection {
   }
 
   private void sendPing() {
-    lastPingNumber_ += 1;
-    if (lastPingNumber_ > 99)
-      lastPingNumber_ = 0;
+    lastPingNumber += 1;
+    if (lastPingNumber > 99)
+      lastPingNumber = 0;
 
-    lastPing_ = System.currentTimeMillis();
-    pingMessage_ = "" + lastPingNumber_;
-    send(PING_REQUEST_MESSAGE + pingMessage_);
-    hasRecievedAnswer_ = false;
+    lastPing = System.currentTimeMillis();
+    pingMessage = "" + lastPingNumber;
+    send(PING_REQUEST_MESSAGE + pingMessage);
+    hasRecievedAnswer = false;
   }
 
 
   private boolean readReady() {
     try {
-      return reader_.ready();
+      return reader.ready();
     } catch (IOException e) { }
     
     return false;
@@ -299,7 +299,7 @@ public abstract class AbstractConnection {
   
   private int readChars(char[] chars) {
     try {
-      int amountRead = reader_.read(chars);
+      int amountRead = reader.read(chars);
       if (amountRead == -1)
         lostConnection();
       return amountRead;
@@ -312,15 +312,15 @@ public abstract class AbstractConnection {
   
   private void writeString(String text) {
     try {
-      writer_.write(text);
+      writer.write(text);
     } catch (IOException e) { }
   }
   
   protected void lostConnection() {
-    if (isConnected_) {
-    	isClosing_ = true;
-    	isConnected_ = false;
-      manager_.disconnected(this, ConnectionManagerInterface.REASON_LOST_CONNECTION, null);
+    if (isConnected) {
+    	isClosing = true;
+    	isConnected = false;
+      connectionManager.disconnected(this, ConnectionManagerInterface.REASON_LOST_CONNECTION, null);
     }
   }
 }

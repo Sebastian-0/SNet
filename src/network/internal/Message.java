@@ -20,7 +20,8 @@ import sbasicgui.util.Poolable;
  * @author Sebastian Hjelm
  */
 public class Message implements Poolable {
-  private static volatile Pool<Message> pool_;
+  private static volatile Pool<Message> pool;
+  
   
   /**
    * The socket that sent the message.
@@ -43,8 +44,8 @@ public class Message implements Poolable {
   
   
   static {
-    pool_ = new Pool<Message>(Message.class);
-    pool_.allocate(10);
+    pool = new Pool<Message>(Message.class);
+    pool.allocate(10);
   }
   
   
@@ -71,7 +72,7 @@ public class Message implements Poolable {
    * @return A message connected with {@code sender}, containing {@code message}
    */
   public static Message createMessage(AbstractConnection sender, String message) {
-    Message msg = pool_.acquire();
+    Message msg = pool.acquire();
     msg.receiver    = sender;
     msg.commandCode = message.charAt(0);
     msg.targetedSubscriberId = (int)message.charAt(1);
@@ -98,7 +99,7 @@ public class Message implements Poolable {
     if (!isDisposed_) {
       receiver = null;
       message = null;
-      pool_.store(this);
+      pool.store(this);
       isDisposed_ = true;
     }
   }

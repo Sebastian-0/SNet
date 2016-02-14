@@ -18,8 +18,8 @@ import java.nio.charset.Charset;
 import sbasicgui.util.BasicUtils;
 
 public class ClientConnection extends AbstractConnection {
-  private volatile String host_;
-  private volatile int    port_;
+  private volatile String host;
+  private volatile int    port;
   
   private volatile boolean couldNotConnect_;
   
@@ -27,8 +27,8 @@ public class ClientConnection extends AbstractConnection {
   public ClientConnection(ConnectionManagerInterface manager, String host, int port) {
     super (manager);
     
-    host_ = host;
-    port_ = port;
+    this.host = host;
+    this.port = port;
     
     connectionThread.start();
   }
@@ -44,7 +44,7 @@ public class ClientConnection extends AbstractConnection {
   @Override
   public void stop() {
     super.stop();
-    if (!isConnected_)
+    if (!isConnected)
       connectionThread.interrupt();
   }
   
@@ -60,15 +60,15 @@ public class ClientConnection extends AbstractConnection {
       // Attempt connection
       // TODO Client; Dela in detta i flera try-statements för att lättare hitta fel?
       try {
-        socket_ = new Socket(host_, port_);
-        socket_.setTcpNoDelay(true);
-        reader_ = new InputStreamReader (socket_.getInputStream (), Charset.forName("UTF-8"));
-        writer_ = new OutputStreamWriter(socket_.getOutputStream(), Charset.forName("UTF-8"));
-        isConnected_ = true;
+        socket = new Socket(host, port);
+        socket.setTcpNoDelay(true);
+        reader = new InputStreamReader (socket.getInputStream (), Charset.forName("UTF-8"));
+        writer = new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8"));
+        isConnected = true;
       } catch (IOException e) {
         System.out.println("Client: <init>(): Unable to create socket! Host unreachable!");
         couldNotConnect_ = true;
-        manager_.failedToStart(null, ClientConnection.this);
+        connectionManager.failedToStart(null, ClientConnection.this);
         return;
       }
       
@@ -77,9 +77,9 @@ public class ClientConnection extends AbstractConnection {
       readThread.start();
       writeThread.start();
       
-      while (isConnected_) {
+      while (isConnected) {
         // We lost the connection unexpectedly
-        if (socket_.isClosed()) {
+        if (socket.isClosed()) {
           lostConnection();
           break;
         }
@@ -94,9 +94,9 @@ public class ClientConnection extends AbstractConnection {
         try { Thread.sleep(10); } catch (InterruptedException e) { }
       }
       
-      BasicUtils.closeSilently(reader_);
-      BasicUtils.closeSilently(writer_);
-      BasicUtils.closeSilently(socket_);
+      BasicUtils.closeSilently(reader);
+      BasicUtils.closeSilently(writer);
+      BasicUtils.closeSilently(socket);
     }
   };
   
@@ -109,7 +109,7 @@ public class ClientConnection extends AbstractConnection {
     
     @Override
     public void run() {
-      while (isConnected_) {
+      while (isConnected) {
         read();
       }
     }
@@ -124,8 +124,8 @@ public class ClientConnection extends AbstractConnection {
     
     @Override
     public void run() {
-      while (isConnected_) {
-        if (!hasBeenGreeted_ || messages_.isEmpty()) {
+      while (isConnected) {
+        if (!hasBeenGreeted || messages.isEmpty()) {
           lock.lock();
           try {
             condition.await();
@@ -134,7 +134,7 @@ public class ClientConnection extends AbstractConnection {
           lock.unlock();
         }
         
-        if (hasBeenGreeted_)
+        if (hasBeenGreeted)
           write();
       }
     }

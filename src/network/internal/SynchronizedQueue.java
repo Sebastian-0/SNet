@@ -20,9 +20,9 @@ import java.util.Queue;
  * @param <E> The type parameter for this queue
  */
 public class SynchronizedQueue<E> implements Queue<E> {
-  private volatile Queue<E> queue_;
+  private volatile Queue<E> queue;
   
-  protected volatile Object lock_;
+  protected volatile Object lock;
   
   /**
    * Creates a new {@code SynchronizedQueue} and links it to the specified queue.
@@ -33,98 +33,98 @@ public class SynchronizedQueue<E> implements Queue<E> {
     if (queue == null)
       throw new NullPointerException("The specified queue is null!");
     
-    queue_ = queue;
-    lock_  = new Object();
+    this.queue = queue;
+    lock  = new Object();
   }
   
 
   @Override
   public int size() {
-    synchronized (lock_) { return queue_.size(); } 
+    synchronized (lock) { return queue.size(); } 
   }
 
   @Override
   public boolean isEmpty() {
-    synchronized (lock_) { return queue_.isEmpty(); }
+    synchronized (lock) { return queue.isEmpty(); }
   }
 
   @Override
   public boolean contains(Object o) {
-    synchronized (lock_) { return queue_.contains(o); }
+    synchronized (lock) { return queue.contains(o); }
   }
 
   @Override
   public Iterator<E> iterator() {
-    synchronized (lock_) { return queue_.iterator(); }
+    synchronized (lock) { return queue.iterator(); }
   }
 
   @Override
   public Object[] toArray() {
-    synchronized (lock_) { return queue_.toArray(); }
+    synchronized (lock) { return queue.toArray(); }
   }
 
   @Override
   public <T> T[] toArray(T[] a) {
-    synchronized (lock_) { return queue_.toArray(a); }
+    synchronized (lock) { return queue.toArray(a); }
   }
 
   @Override
   public boolean remove(Object o) {
-    synchronized (lock_) { return queue_.remove(0); }
+    synchronized (lock) { return queue.remove(0); }
   }
 
   @Override
   public boolean containsAll(Collection<?> c) {
-    synchronized (lock_) { return queue_.containsAll(c); }
+    synchronized (lock) { return queue.containsAll(c); }
   }
 
   @Override
   public boolean addAll(Collection<? extends E> c) {
-    synchronized (lock_) { return queue_.addAll(c); }
+    synchronized (lock) { return queue.addAll(c); }
   }
 
   @Override
   public boolean removeAll(Collection<?> c) {
-    synchronized (lock_) { return queue_.removeAll(c); }
+    synchronized (lock) { return queue.removeAll(c); }
   }
 
   @Override
   public boolean retainAll(Collection<?> c) {
-    synchronized (lock_) { return queue_.retainAll(c); }
+    synchronized (lock) { return queue.retainAll(c); }
   }
 
   @Override
   public void clear() {
-    synchronized (lock_) { queue_.clear(); }
+    synchronized (lock) { queue.clear(); }
   }
 
   @Override
   public boolean add(E e) {
-    synchronized (lock_) { return queue_.add(e); }
+    synchronized (lock) { return queue.add(e); }
   }
 
   @Override
   public boolean offer(E e) {
-    synchronized (lock_) { return queue_.offer(e); }
+    synchronized (lock) { return queue.offer(e); }
   }
 
   @Override
   public E remove() {
-    synchronized (lock_) { return queue_.remove(); }
+    synchronized (lock) { return queue.remove(); }
   }
 
   @Override
   public E poll() {
-    synchronized (lock_) { return queue_.poll(); }
+    synchronized (lock) { return queue.poll(); }
   }
 
   @Override
   public E element() {
-    synchronized (lock_) { return queue_.element(); }
+    synchronized (lock) { return queue.element(); }
   }
 
   @Override
   public E peek() {
-    synchronized (lock_) { return queue_.peek(); }
+    synchronized (lock) { return queue.peek(); }
   }
 }

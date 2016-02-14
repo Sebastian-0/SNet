@@ -23,9 +23,9 @@ import sbasicgui.util.BasicUtils;
  * @author Sebastian Hjelm
  */
 public class ServerConnection extends AbstractConnection {
-  private String id_;
+  private String id;
   
-  private ServerConnectionListener server_;
+  private ServerConnectionListener server;
   
   
   /**
@@ -40,11 +40,11 @@ public class ServerConnection extends AbstractConnection {
     
     generateId();
     
-    server_ = server;
+    this.server = server;
     
-    socket_ = socket;
+    this.socket = socket;
     
-    isConnected_ = true;
+    isConnected = true;
     connectionThread.start();
   }
   
@@ -56,7 +56,7 @@ public class ServerConnection extends AbstractConnection {
    * @return The id of this server listener
    */
   public String getId() {
-    return id_;
+    return id;
   }
   
   
@@ -65,7 +65,7 @@ public class ServerConnection extends AbstractConnection {
     for (int i = 0; i < 20; i++)
       b.append(generateChar());
     
-    id_ = b.toString();
+    id = b.toString();
   }
   
   
@@ -84,11 +84,11 @@ public class ServerConnection extends AbstractConnection {
     public void run() {
       // TODO ServerListener; Dela in detta i flera try-statements för att lättare hitta fel?
       try {
-        reader_ = new InputStreamReader (socket_.getInputStream (), Charset.forName("UTF-8"));
-        writer_ = new OutputStreamWriter(socket_.getOutputStream(), Charset.forName("UTF-8"));
+        reader = new InputStreamReader (socket.getInputStream (), Charset.forName("UTF-8"));
+        writer = new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8"));
       } catch (IOException e) {
         System.out.println("ServerListener: run(): failed to create streams! Canceling connection...");
-        isConnected_ = false;
+        isConnected = false;
       }
       
       sendHello();
@@ -96,9 +96,9 @@ public class ServerConnection extends AbstractConnection {
       readThread.start();
       writeThread.start();
       
-      while (isConnected_) {
+      while (isConnected) {
         // We lost the connection unexpectedly
-        if (socket_.isClosed()) {
+        if (socket.isClosed()) {
           lostConnection();
           break;
         }
@@ -113,11 +113,11 @@ public class ServerConnection extends AbstractConnection {
         try { Thread.sleep(10); } catch (InterruptedException e) { }
       }
       
-      BasicUtils.closeSilently(reader_);
-      BasicUtils.closeSilently(writer_);
-      BasicUtils.closeSilently(socket_);
+      BasicUtils.closeSilently(reader);
+      BasicUtils.closeSilently(writer);
+      BasicUtils.closeSilently(socket);
       
-      server_.terminated(ServerConnection.this);
+      server.terminated(ServerConnection.this);
     }
   };
   
@@ -130,7 +130,7 @@ public class ServerConnection extends AbstractConnection {
     
     @Override
     public void run() {
-      while (isConnected_) {
+      while (isConnected) {
         read();
       }
     }
@@ -145,8 +145,8 @@ public class ServerConnection extends AbstractConnection {
     
     @Override
     public void run() {
-      while (isConnected_) {
-        if (!hasBeenGreeted_ || messages_.isEmpty()) {
+      while (isConnected) {
+        if (!hasBeenGreeted || messages.isEmpty()) {
           lock.lock();
           try {
             condition.await();
@@ -155,7 +155,7 @@ public class ServerConnection extends AbstractConnection {
           lock.unlock();
         }
         
-        if (hasBeenGreeted_)
+        if (hasBeenGreeted)
           write();
       }
     }

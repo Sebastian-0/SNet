@@ -21,23 +21,23 @@ import sbasicgui.util.Debugger;
 
 
 public class ServerConnectionListener {
-  private ConnectionManagerInterface manager_;
+  private ConnectionManagerInterface manager;
   
-  private volatile Map<String, ServerConnection> connections_;
+  private volatile Map<String, ServerConnection> connections;
 
-  private volatile int     port_;
-  private volatile boolean couldNotConnect_;
+  private volatile int port;
+  private volatile boolean couldNotConnect;
   
-  private ServerSocket socket_;
+  private ServerSocket serverSocket;
   
-  private volatile boolean isRunning_;
+  private volatile boolean isRunning;
   
   
   public ServerConnectionListener(ConnectionManagerInterface manager, int port) {
-    manager_ = manager;
-    port_ = port;
+    this.manager = manager;
+    this.port = port;
     
-    connections_ = Collections.synchronizedMap(new HashMap<String, ServerConnection>());
+    connections = Collections.synchronizedMap(new HashMap<String, ServerConnection>());
     
     thread.start();
   }
@@ -49,14 +49,12 @@ public class ServerConnectionListener {
    * @return All the server listeners of this server
    */
   public Map<String, ServerConnection> getConnections() {
-    synchronized (this) {
-      return connections_;
-    }
+    return connections;
   }
   
   
   void terminated(ServerConnection connection) {
-    connections_.remove(connection.getId());
+    connections.remove(connection.getId());
   }
   
   
@@ -70,13 +68,13 @@ public class ServerConnectionListener {
    *  when the response for each connection arrives.
    */
   public void stop() {
-    if (isRunning_) {
-      for (ServerConnection connection : connections_.values())
+    if (isRunning) {
+      for (ServerConnection connection : connections.values())
         connection.stop();
       
-      isRunning_ = false;
+      isRunning = false;
       try {
-        socket_.close();
+        serverSocket.close();
       } catch (IOException e) { }
     } else {
       thread.interrupt();
@@ -90,11 +88,11 @@ public class ServerConnectionListener {
    * @return True if this server is connected
    */
   public boolean isConnected() {
-    if (isRunning_)
+    if (isRunning)
       return true;
     
     boolean has = false;
-    for (ServerConnection connection : connections_.values()) {
+    for (ServerConnection connection : connections.values()) {
       if (connection.isConnected()) {
         has = true;
         break;
@@ -109,7 +107,7 @@ public class ServerConnectionListener {
    * @return True if this server failed to initialize
    */
   public boolean couldNotConnect() {
-    return couldNotConnect_;
+    return couldNotConnect;
   }
   
   
@@ -118,8 +116,8 @@ public class ServerConnectionListener {
    * @param message The message to send
    */
   public void sendToAll(String message) {
-    for (ServerConnection sl : connections_.values())
-      sl.send(message);
+    for (ServerConnection connection : connections.values())
+      connection.send(message);
   }
   
   
@@ -129,7 +127,7 @@ public class ServerConnectionListener {
    * @param message The message to forward
    */
   public void forward(Message message) {
-    for (ServerConnection connection : connections_.values())
+    for (ServerConnection connection : connections.values())
       if (connection != message.receiver)
         connection.send(message.message);
   }
@@ -143,13 +141,13 @@ public class ServerConnectionListener {
     
     @Override
     public void run() {
-      if (!isPortAvailable(port_)) {
+      if (!isPortAvailable(port)) {
         startFailed();
         return;
       }
       
       try {
-        socket_ = new ServerSocket(port_);
+        serverSocket = new ServerSocket(port);
       } catch (IOException e1) {
         startFailed();
         return;
@@ -157,22 +155,22 @@ public class ServerConnectionListener {
       if (Thread.interrupted()) // The server was stopped while starting
         return;
       
-      isRunning_ = true;
-      manager_.serverStarted(socket_.getLocalPort());
+      isRunning = true;
+      manager.serverStarted(serverSocket.getLocalPort());
       
-      while (isRunning_) {
+      while (isRunning) {
         try {
-          Socket connection = socket_.accept();
-          connection.setTcpNoDelay(true);
+          Socket newSocket = serverSocket.accept();
+          newSocket.setTcpNoDelay(true);
           
-          ServerConnection listener = new ServerConnection(manager_, connection, ServerConnectionListener.this);
+          ServerConnection connection = new ServerConnection(manager, newSocket, ServerConnectionListener.this);
           
-          while (connections_.get(listener.getId()) != null)
-            listener.generateId();
+          while (connections.get(connection.getId()) != null)
+            connection.generateId();
           
-          connections_.put(listener.getId(), listener);
+          connections.put(connection.getId(), connection);
         } catch (IOException e) {
-          if (isRunning_) // If 'false' the server's stop() has been invoked. In that case this exception is expected
+          if (isRunning) // If 'false' the server's stop() has been invoked. In that case this exception is expected
             Debugger.error("Server: run()", "An error occured while waiting for a connection");
         }
       }
@@ -193,10 +191,10 @@ public class ServerConnectionListener {
     }
 
     private void startFailed() {
-      isRunning_ = false;
-      couldNotConnect_ = true;
+      isRunning = false;
+      couldNotConnect = true;
       Debugger.error("Server: Thread: startFailed()", "Socket already used!");
-      manager_.failedToStart(ServerConnectionListener.this, null);
+      manager.failedToStart(ServerConnectionListener.this, null);
     }
   };
 }
