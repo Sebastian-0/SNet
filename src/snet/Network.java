@@ -31,19 +31,15 @@ import snet.internal.Message;
  * @author Sebastian Hjelm
  */
 public abstract class Network {
-  private static HashMap<Character, NetworkHook<?>> hooks;
+  private HashMap<Character, NetworkHook<?>> hooks;
   
   private BlockingQueue<Message> queuedMessages;
   private boolean waitForPoll;
   
   
-  static {
-    hooks = new HashMap<Character, NetworkHook<?>>();
-  }
-  
-  
   public Network() {
     queuedMessages = new LinkedBlockingQueue<Message>();
+    hooks = new HashMap<Character, NetworkHook<?>>();
   }
   
   
@@ -101,7 +97,7 @@ public abstract class Network {
       
       message.dispose();
     } else {
-      Debugger.error("Network: " + methodName, "No network hook with the specified command code: " + Network.commandCodeString(message.message.charAt(0)));
+      Debugger.error("Network: " + methodName, "No network hook with the specified command code: " + commandCodeString(message.message.charAt(0)));
     }
   }
 
@@ -199,7 +195,7 @@ public abstract class Network {
    * @throws IllegalArgumentException If there already is a network hook with the
    *  command code used by the new hook.
    */
-  public static void registerHook(NetworkHook<?> networkHook) {
+  public void registerHook(NetworkHook<?> networkHook) {
     if (hooks.get(networkHook.getCommandCode()) == null) {
       hooks.put(networkHook.getCommandCode(), networkHook);
       return;
@@ -208,7 +204,7 @@ public abstract class Network {
     throw new IllegalArgumentException("There was already a network hook with the command code: " + commandCodeString(networkHook.getCommandCode()));
   }
   
-  private static String commandCodeString(char code) {
+  private String commandCodeString(char code) {
     return code + " (\\u" + Integer.toHexString(code | 0x10000).substring(1) + ")";
   }
 }
