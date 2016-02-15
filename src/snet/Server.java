@@ -30,18 +30,18 @@ import snet.internal.ServerConnectionListener;
 public class Server extends Network {
   private ServerConnectionListener connectionListener;
   
-  private ConnectionLifecycleListener serverLifecycleListener;
+  private ServerLifecycleListener serverLifecycleListener;
   
   
   /**
    * Creates a network interface for <i>servers</i> using the specified port.
    * The connection listener receives information on when a client-server
    *  connection is established or lost.
-   * @param connectionListener The connection listener to use
+   * @param lifecycleListener The lifecycle listener to use
    * @param port The host server port
    */
-  public Server(ConnectionLifecycleListener connectionLifecycleListener, int port) {
-    this.serverLifecycleListener = connectionLifecycleListener;
+  public Server(ServerLifecycleListener lifecycleListener, int port) {
+    this.serverLifecycleListener = lifecycleListener;
     
     connectionListener = new ServerConnectionListener(connectionManager, port);
   }

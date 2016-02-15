@@ -29,19 +29,19 @@ import snet.internal.ServerConnectionListener;
 public class Client extends Network {
   private ClientConnection connection;
   
-  private ConnectionLifecycleListener clientLifecycleListener;
+  private ClientLifecycleListener clientLifecycleListener;
   
   
   /**
    * Creates a network interface for <i>clients</i> using the specified host
    *  server and port. The connection listener receives information on when a
    *  client-server connection is established or lost. 
-   * @param connectionListener The connection listener to use
+   * @param lifecycleListener The lifecycle listener to use
    * @param host The host server address
    * @param port The host server port
    */
-  public Client(ConnectionLifecycleListener connectionListener, String host, int port) {
-    this.clientLifecycleListener = connectionListener;
+  public Client(ClientLifecycleListener lifecycleListener, String host, int port) {
+    this.clientLifecycleListener = lifecycleListener;
     
     connection = new ClientConnection(connectionManager, host, port);
   }
@@ -116,7 +116,7 @@ public class Client extends Network {
     
     @Override
     public void failedToStart(ServerConnectionListener server, ClientConnection client) {
-      clientLifecycleListener.failedToStart();
+      clientLifecycleListener.failedToEstablishConnection();
     }
     
     @Override
@@ -124,12 +124,12 @@ public class Client extends Network {
     
     @Override
     public void connected(AbstractConnection connector) {
-      clientLifecycleListener.connected(null);
+      clientLifecycleListener.connected();
     }
     
     @Override
     public void disconnected(AbstractConnection connector, byte reason, String message) {
-      clientLifecycleListener.disconnected(null, reason, message);
+      clientLifecycleListener.disconnected(reason, message);
     }
   };
 }
