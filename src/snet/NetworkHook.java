@@ -29,7 +29,7 @@ public abstract class NetworkHook<E> {
    *  Keep in mind that this character might cause problems if sent as a
    *  part of the message text when not used as a separator!
    */
-  public static final String SEPARATOR = "|"; // Same as '\u007C'
+  public static final String SEPARATOR = "\u65535";
   
   private char commandCode;
   private Map<Integer, E> subscribedObjects;

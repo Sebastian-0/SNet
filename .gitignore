@@ -55,4 +55,5 @@ fonts/
 audio/
 *.ini
 *.jar
+*.jardesc
 desktop/statistics.txt
