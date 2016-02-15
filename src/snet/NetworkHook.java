@@ -7,13 +7,13 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package snet;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import network.internal.AbstractConnection;
-import network.internal.Message;
+import snet.internal.AbstractConnection;
+import snet.internal.Message;
 
 /**
  * This class describes an abstract network hook. Override it and add it to

@@ -7,14 +7,14 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package snet;
 
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import network.internal.Message;
 import sbasicgui.util.Debugger;
+import snet.internal.Message;
 
 /**
  * This class manages the connection between the networking backend and the game

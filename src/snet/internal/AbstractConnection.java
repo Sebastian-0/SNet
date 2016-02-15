@@ -7,7 +7,7 @@
  * of the License, or (at your option) any later version.
  */
 
-package network.internal;
+package snet.internal;
 
 import java.io.IOException;
 import java.io.Reader;

@@ -7,9 +7,9 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package snet;
 
-import network.internal.ConnectionManagerInterface;
+import snet.internal.ConnectionManagerInterface;
 
 /**
  * An interface used in conjunction with {@code Network} to listen for disconnects.

@@ -7,13 +7,13 @@
  * of the License, or (at your option) any later version.
  */
 
-package network;
+package snet;
 
-import network.internal.AbstractConnection;
-import network.internal.ClientConnection;
-import network.internal.ConnectionManagerInterface;
-import network.internal.Message;
-import network.internal.ServerConnectionListener;
+import snet.internal.AbstractConnection;
+import snet.internal.ClientConnection;
+import snet.internal.ConnectionManagerInterface;
+import snet.internal.Message;
+import snet.internal.ServerConnectionListener;
 
 /**
  * This class manages the client connection. The communication is done through
