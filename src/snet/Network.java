@@ -31,7 +31,8 @@ import snet.internal.Message;
  * @author Sebastian Hjelm
  */
 public abstract class Network {
-  private HashMap<Character, NetworkHook<?>> hooks;
+  private HashMap<Character, NetworkHook<?>> networkHooks;
+  private HashMap<Class<?>, NetworkHook<?>> networkHooksByClass;
   
   private BlockingQueue<Message> queuedMessages;
   private boolean waitForPoll;
@@ -39,7 +40,8 @@ public abstract class Network {
   
   public Network() {
     queuedMessages = new LinkedBlockingQueue<Message>();
-    hooks = new HashMap<Character, NetworkHook<?>>();
+    networkHooks = new HashMap<Character, NetworkHook<?>>();
+    networkHooksByClass = new HashMap<Class<?>, NetworkHook<?>>();
   }
   
   
@@ -87,7 +89,7 @@ public abstract class Network {
   }
 
   private void processMessage(Message message, String methodName) {
-    NetworkHook<?> hook = hooks.get(message.message.charAt(0));
+    NetworkHook<?> hook = networkHooks.get(message.message.charAt(0));
     if (hook != null) {
       try {
         dispatchMessage(message, hook);
@@ -196,15 +198,35 @@ public abstract class Network {
    *  command code used by the new hook.
    */
   public void registerHook(NetworkHook<?> networkHook) {
-    if (hooks.get(networkHook.getCommandCode()) == null) {
-      hooks.put(networkHook.getCommandCode(), networkHook);
-      return;
+    if (networkHooks.get(networkHook.getCommandCode()) == null) {
+      networkHooks.put(networkHook.getCommandCode(), networkHook);
+      networkHooksByClass.put(networkHook.getClass(), networkHook);
     }
-    
-    throw new IllegalArgumentException("There was already a network hook with the command code: " + commandCodeString(networkHook.getCommandCode()));
+    else {
+    	throw new IllegalArgumentException("There was already a network hook with the command code: " + commandCodeString(networkHook.getCommandCode()));
+    }
   }
   
   private String commandCodeString(char code) {
     return code + " (\\u" + Integer.toHexString(code | 0x10000).substring(1) + ")";
+  }
+
+  /**
+   * Returns any network hook registered by the specified command code, or 
+   *  <code>null</code> if there is none.
+   * @param commandCode The command code to search for
+   * @return Any network hook registered using the specified command code
+   */
+  public NetworkHook<?> getNetworkHook(char commandCode) {
+  	return networkHooks.get(commandCode);
+  }
+  /**
+   * Returns any network hook that is if the specified class, or 
+   *  <code>null</code> if there is none.
+   * @param hookClass The class to search for
+   * @return Any network hook that is if the specified class
+   */
+  public NetworkHook<?> getNetworkHook(Class<?> hookClass) {
+  	return networkHooksByClass.get(hookClass);
   }
 }
