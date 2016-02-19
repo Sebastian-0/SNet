@@ -34,17 +34,23 @@ public class Server extends Network {
   
   
   /**
-   * Creates a network interface for <i>servers</i> using the specified port.
-   * The connection listener receives information on when a client-server
-   *  connection is established or lost.
+   * Creates a network interface for <i>servers</i>. The connection listener 
+   *  receives information on when a client-server connection is established or lost.
+   *  Call {@link #start(int)} to start the server.
    * @param lifecycleListener The lifecycle listener to use
    * @param port The host server port
    */
   public Server(ServerLifecycleListener lifecycleListener, int port) {
     this.serverLifecycleListener = lifecycleListener;
-    
-    connectionListener = new ServerConnectionListener(connectionManager, port);
   }
+
+  /**
+   * Starts a server at the specified port.
+   * @param port The port to use
+   */
+	public void start(int port) {
+		connectionListener = new ServerConnectionListener(connectionManager, port);
+	}
   
   @Override
   protected void dispatchMessage(Message message, NetworkHook<?> hook) {

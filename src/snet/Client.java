@@ -33,18 +33,25 @@ public class Client extends Network {
   
   
   /**
-   * Creates a network interface for <i>clients</i> using the specified host
-   *  server and port. The connection listener receives information on when a
-   *  client-server connection is established or lost. 
+   * Creates a network interface for <i>clients</i>. The lifecycle listener 
+   *  receives information on when a client-server connection is established or lost. 
+   *  Call {@link #start(String, int)} to connect to a server.
    * @param lifecycleListener The lifecycle listener to use
-   * @param host The host server address
-   * @param port The host server port
    */
   public Client(ClientLifecycleListener lifecycleListener, String host, int port) {
     this.clientLifecycleListener = lifecycleListener;
     
-    connection = new ClientConnection(connectionManager, host, port);
+    start(host, port);
   }
+
+  /**
+   * Opens a connection the specified host using the specified port.
+   * @param host The host address
+   * @param port The host port
+   */
+	public void start(String host, int port) {
+		connection = new ClientConnection(connectionManager, host, port);
+	}
   
 
 	@Override
