@@ -87,11 +87,15 @@ public abstract class NetworkHook<E> {
   /**
    * Attaches the specified object as a subscriber for messages received by this
    *  network hook. The id is used to target this specific subscriber when 
-   *  sending messages. Any existing subscriber with the same id will be overwritten.
+   *  sending messages.
    * @param id The id for this subscriber to use
    * @param subscriber The object that wants to subscribe
+   * @throws IllegalArgumentException If There already exists a subscriber with the specified id
    */
   public void subscribe(int id, E subscriber) {
+  	if (subscribedObjects.containsKey(id))
+  		throw new IllegalArgumentException("There already exists a subscriber with id: " + id);
+  	
   	subscribedObjects.put(id, subscriber);
   }
   /**
