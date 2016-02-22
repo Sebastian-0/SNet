@@ -38,10 +38,8 @@ public class Client extends Network {
    *  Call {@link #start(String, int)} to connect to a server.
    * @param lifecycleListener The lifecycle listener to use
    */
-  public Client(ClientLifecycleListener lifecycleListener, String host, int port) {
+  public Client(ClientLifecycleListener lifecycleListener) {
     this.clientLifecycleListener = lifecycleListener;
-    
-    start(host, port);
   }
 
   /**

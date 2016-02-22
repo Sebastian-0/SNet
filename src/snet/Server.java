@@ -38,9 +38,8 @@ public class Server extends Network {
    *  receives information on when a client-server connection is established or lost.
    *  Call {@link #start(int)} to start the server.
    * @param lifecycleListener The lifecycle listener to use
-   * @param port The host server port
    */
-  public Server(ServerLifecycleListener lifecycleListener, int port) {
+  public Server(ServerLifecycleListener lifecycleListener) {
     this.serverLifecycleListener = lifecycleListener;
   }
 
