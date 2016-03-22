@@ -135,6 +135,6 @@ public abstract class NetworkHook<E> {
    * @return The message to send, parsed and ready to be sent through the network
    */
   public final Message createMessage(String data, int targetedSubscriberId) {
-    return Message.createMessage(Character.toString(getCommandCode()) + (char)targetedSubscriberId + data);
+    return Message.createMessage(Character.toString(getCommandCode()) + (char)(targetedSubscriberId + '0') + data);
   }
 }

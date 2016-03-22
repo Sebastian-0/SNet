@@ -75,7 +75,7 @@ public class Message implements Poolable {
     Message msg = pool.acquire();
     msg.receiver    = sender;
     msg.commandCode = message.charAt(0);
-    msg.targetedSubscriberId = (int)message.charAt(1);
+    msg.targetedSubscriberId = (int)(message.charAt(1) - '0');
     msg.message     = message;
     msg.isDisposed_ = false;
     return msg;
