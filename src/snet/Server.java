@@ -62,7 +62,8 @@ public class Server extends Network {
     throw new UnsupportedOperationException("This operation is only supported for clients");
   }
  
-  public void send(String id, Message message) {
+  @Override
+	public void send(String id, Message message) {
     if (connectionListener != null) {
       ServerConnection connection = connectionListener.getConnections().get(id);
       if (connection != null)
@@ -72,18 +73,21 @@ public class Server extends Network {
     }
   }
   
-  public void sendToAll(Message message) {
+  @Override
+	public void sendToAll(Message message) {
     if (connectionListener != null)
       connectionListener.sendToAll(message.message);
   }
   
-  public void forward(Message message) {
+  @Override
+	public void forward(Message message) {
     if (connectionListener != null)
       connectionListener.forward(message);
   }
   
   
-  public void disconnect() {
+  @Override
+	public void disconnect() {
     if (connectionListener != null)
       connectionListener.stop();
   }
@@ -98,14 +102,16 @@ public class Server extends Network {
   }
   
   
-  public boolean isConnected() {
+  @Override
+	public boolean isConnected() {
     if (connectionListener != null)
       return connectionListener.isConnected();
     
     return false;
   }
   
-  public boolean connectionFailed() {
+  @Override
+	public boolean connectionFailed() {
     if (connectionListener != null)
       return connectionListener.couldNotConnect();
     

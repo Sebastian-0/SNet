@@ -62,36 +62,42 @@ public class Client extends Network {
   	send(null, message);
   }
   
-  public void send(String id, Message message) {
+  @Override
+	public void send(String id, Message message) {
     if (connection != null)
       connection.send(message.message);
   }
   
-  public void sendToAll(Message message) {
+  @Override
+	public void sendToAll(Message message) {
     if (connection != null)
       throw new UnsupportedOperationException("This operation is only supported for servers");
   }
   
-  public void forward(Message message) {
+  @Override
+	public void forward(Message message) {
     if (connection != null)
       throw new UnsupportedOperationException("This operation is only supported for servers");
   }
   
   
-  public void disconnect() {
+  @Override
+	public void disconnect() {
     if (connection != null)
       connection.stop();
   }
   
   
-  public boolean isConnected() {
+  @Override
+	public boolean isConnected() {
     if (connection != null)
       return connection.isConnected();
     
     return false;
   }
   
-  public boolean connectionFailed() {
+  @Override
+	public boolean connectionFailed() {
     if (connection != null)
       return connection.couldNotConnect();
     
