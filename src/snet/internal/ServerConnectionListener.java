@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import sbasicgui.util.Debugger;
+import sutilities.Debugger;
 
 
 public class ServerConnectionListener {

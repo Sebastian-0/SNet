@@ -9,8 +9,8 @@
 
 package snet.internal;
 
-import sbasicgui.util.Pool;
-import sbasicgui.util.Poolable;
+import sutilities.Pool;
+import sutilities.Poolable;
 
 /**
  * A class that describes a server/client message received through a socket. To

@@ -15,7 +15,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
-import sbasicgui.util.BasicUtils;
+import sutilities.BasicUtils;
 
 
 /**

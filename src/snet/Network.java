@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import sbasicgui.util.Debugger;
 import snet.internal.Message;
+import sutilities.Debugger;
 
 /**
  * This class manages the connection between the networking backend and the game
