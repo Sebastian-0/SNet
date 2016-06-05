@@ -50,19 +50,14 @@ public abstract class AbstractConnection {
   public static final char SEPARATOR_CHAR = '\u2502';
 
   /**
-   * The delay between server/client read/write refresh, in milliseconds.
-   */
-  public static final int REFRESH_DELAY = 10;
-
-  /**
    * The maximum ping latency that is allowed, in milliseconds.
    */
-  public static final int MAXIMUM_LATENCY = 2000;
+  public static int maximumLatency = 2000;
   /**
    * The maximum amount of ping retries that are carried out before the connection
    *  is deemed as timed out.
    */
-  public static final int MAXIMUM_RETRIES = 10000; // TODO AbstractConnector; Återställ konstanten till 10
+  public static int maximumRetries = 10;
   
   
   protected volatile ConnectionManagerInterface connectionManager;
@@ -266,8 +261,8 @@ public abstract class AbstractConnection {
         sendPing();
       }
     }
-    else if (System.currentTimeMillis() - lastPing > MAXIMUM_LATENCY) {
-      if (retries++ >= MAXIMUM_RETRIES) {
+    else if (System.currentTimeMillis() - lastPing > maximumLatency) {
+      if (retries++ >= maximumRetries) {
         // Lost connection
       	isConnected = false;
         connectionManager.disconnected(this, ConnectionManagerInterface.REASON_TIMEOUT, null);
