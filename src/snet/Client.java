@@ -139,8 +139,8 @@ public class Client extends Network {
     }
     
     @Override
-    public void disconnected(AbstractConnection connector, byte reason, String message) {
-      clientLifecycleListener.disconnected(reason, message);
+    public void disconnected(AbstractConnection connector, DisconnectReason reason) {
+      clientLifecycleListener.disconnected(reason);
     }
   };
 }

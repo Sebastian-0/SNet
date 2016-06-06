@@ -12,6 +12,7 @@ package snet;
 import snet.internal.AbstractConnection;
 import snet.internal.ClientConnection;
 import snet.internal.ConnectionManagerInterface;
+import snet.internal.ConnectionManagerInterface.DisconnectReason;
 import snet.internal.Message;
 import snet.internal.ServerConnection;
 import snet.internal.ServerConnectionListener;
@@ -98,7 +99,7 @@ public class Server extends Network {
    */
   public void drop(String id) {
     if (connectionListener != null)
-      connectionListener.getConnections().get(id).stop();
+      connectionListener.getConnections().get(id).stop(DisconnectReason.Kicked);
   }
   
   
@@ -164,8 +165,8 @@ public class Server extends Network {
     }
     
     @Override
-    public void disconnected(AbstractConnection connector, byte reason, String message) {
-      serverLifecycleListener.disconnected(((ServerConnection)connector).getId(), reason, message);
+    public void disconnected(AbstractConnection connector, DisconnectReason reason) {
+      serverLifecycleListener.disconnected(((ServerConnection)connector).getId(), reason);
     }
   };
 }

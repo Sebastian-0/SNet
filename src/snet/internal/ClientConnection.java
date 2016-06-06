@@ -15,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.nio.charset.Charset;
 
+import snet.internal.ConnectionManagerInterface.DisconnectReason;
 import sutilities.BasicUtils;
 
 public class ClientConnection extends AbstractConnection {
@@ -41,9 +42,23 @@ public class ClientConnection extends AbstractConnection {
     return couldNotConnect_;
   }
   
-  @Override
+  /**
+   * Initiates the disconnect-sequence. This connection will send the exit
+   *  message to the server and wait for the response. When the response has
+   *  arrived the connection closes.
+   * </br>
+   * </br><b>Note:</b> {@link ConnectionManagerInterface#disconnected(AbstractConnection, DisconnectReason)
+   * disconnected(AbstractConnection, DisconnectReason)}
+   *  of the connection manager connected with this connection will be invoked
+   *  when the response arrives, with the disconnect reason set to {@link DisconnectReason#ClientLeft}.
+   */
   public void stop() {
-    super.stop();
+    stop(DisconnectReason.ClientLeft);
+  }
+  
+  @Override
+  public void stop(DisconnectReason reason) {
+  	super.stop(reason);
     if (!isConnected)
       connectionThread.interrupt();
   }

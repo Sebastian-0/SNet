@@ -9,7 +9,7 @@
 
 package snet;
 
-import snet.internal.ConnectionManagerInterface;
+import snet.internal.ConnectionManagerInterface.DisconnectReason;
 
 /**
  * An interface used in conjunction with {@link Server} to listen for events.
@@ -40,15 +40,8 @@ public interface ServerLifecycleListener {
    * This method is called when the server loses its connection with one of its
    *  clients. The id parameter is the id of the server connection that lost its
    *  connection with its client.
-   * </br>
-   * </br>The reason should be one of the following:
-   * <ul>
-   *  <li>{@link ConnectionManagerInterface#REASON_CLOSED}</li>
-   *  <li>{@link ConnectionManagerInterface#REASON_TIMEOUT}</li>
-   * </ul>
    * @param id The id of the server connection that lost its connection
    * @param reason The reason for the disconnect
-   * @param message Additional information, or <code>null</code>
    */
-  public abstract void disconnected(String id, byte reason, String message);
+  public abstract void disconnected(String id, DisconnectReason reason);
 }

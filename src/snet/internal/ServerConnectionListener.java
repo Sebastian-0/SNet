@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import snet.internal.ConnectionManagerInterface.DisconnectReason;
 import sutilities.Debugger;
 
 
@@ -70,7 +71,7 @@ public class ServerConnectionListener {
   public void stop() {
     if (isRunning) {
       for (ServerConnection connection : connections.values())
-        connection.stop();
+        connection.stop(DisconnectReason.ServerClosing);
       
       isRunning = false;
       try {
@@ -162,6 +163,7 @@ public class ServerConnectionListener {
         try {
           Socket newSocket = serverSocket.accept();
           newSocket.setTcpNoDelay(true);
+          newSocket.setSoTimeout(0);
           
           ServerConnection connection = new ServerConnection(manager, newSocket, ServerConnectionListener.this);
           

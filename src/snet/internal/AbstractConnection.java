@@ -19,6 +19,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import snet.internal.ConnectionManagerInterface.DisconnectReason;
+import sutilities.Debugger;
+
 /**
  * A class that works common super class for both server and client networking.
  * @author Sebastian Hjelm
@@ -58,6 +61,11 @@ public abstract class AbstractConnection {
    *  is deemed as timed out.
    */
   public static int maximumRetries = 10;
+  
+  /**
+   * Defines whether or not the system should print information that might be useful when debugging.
+   **/
+  public static boolean isInVerboseMode = false;
   
   
   protected volatile ConnectionManagerInterface connectionManager;
@@ -137,12 +145,14 @@ public abstract class AbstractConnection {
    *  message to the server and wait for the response. When the response has
    *  arrived the connection closes.
    * </br>
-   * </br><b>Note:</b> {@link ConnectionManagerInterface#disconnected(byte, String) disconnected(byte, String)}
+   * </br><b>Note:</b> {@link ConnectionManagerInterface#disconnected(AbstractConnection, DisconnectReason)
+   * disconnected(AbstractConnection, DisconnectReason)}
    *  of the connection manager connected with this connection will be invoked
    *  when the response arrives.
+   * @param reason The reason for stopping closing connection
    */
-  public void stop() {
-    send(EXIT_MESSAGE);
+  public void stop(DisconnectReason reason) {
+    send(EXIT_MESSAGE + reason.code);
     isClosing = true;
   }
   
@@ -213,14 +223,16 @@ public abstract class AbstractConnection {
       lock.unlock();
       connectionManager.connected(this);
     }
-    else if (msg.equals(EXIT_MESSAGE)) {
+    else if (msg.startsWith(EXIT_MESSAGE) && msg.length() == EXIT_MESSAGE.length() + 1) {
+    	int code = msg.charAt(msg.length() - 1) - '0';
+    	DisconnectReason reason = DisconnectReason.reasonFromCode(code);
       if (isClosing) {
       	isConnected = false;
-        connectionManager.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
+        connectionManager.disconnected(this, reason);
       } else {
-        send(EXIT_MESSAGE);
+        send(msg);
         isConnected = false;
-        connectionManager.disconnected(this, ConnectionManagerInterface.REASON_CLOSED, null);
+        connectionManager.disconnected(this, reason);
       }
     }
     else if (msg.startsWith(PING_REQUEST_MESSAGE)) {
@@ -265,8 +277,11 @@ public abstract class AbstractConnection {
       if (retries++ >= maximumRetries) {
         // Lost connection
       	isConnected = false;
-        connectionManager.disconnected(this, ConnectionManagerInterface.REASON_TIMEOUT, null);
+        connectionManager.disconnected(this, DisconnectReason.Timeout);
       } else {
+      	if (isInVerboseMode) {
+      		Debugger.debug(AbstractConnection.class.getSimpleName() + ": attemptPing()", "Lost ping, retrying (" + retries + "/" + maximumRetries + ")", false);
+      	}
         sendPing();
       }
     }
@@ -315,7 +330,7 @@ public abstract class AbstractConnection {
     if (isConnected) {
     	isClosing = true;
     	isConnected = false;
-      connectionManager.disconnected(this, ConnectionManagerInterface.REASON_LOST_CONNECTION, null);
+      connectionManager.disconnected(this, DisconnectReason.Unknown);
     }
   }
 }

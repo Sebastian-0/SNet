@@ -16,15 +16,56 @@ package snet.internal;
  * @author Sebastian Hjelm
  */
 public interface ConnectionManagerInterface {
+	
+	/**
+	 * Defines the different reasons there is for the connection to close.
+	 */
+	public enum DisconnectReason {
+		/**
+	   * The server/client connection timed out, either due to a crash or due to a
+	   *  loss of Internet connection.
+	   */
+		Timeout(0),
+		/**
+		 * The client was kicked by the server.
+		 */
+		Kicked(1),
+		/**
+		 * The client closed its connection normally.
+		 */
+		ClientLeft(2),
+		/**
+		 * The server is closing down.
+		 */
+		ServerClosing(3),
+		/**
+		 * The connection was lost for an unknown reason. 
+		 */
+		Unknown(4);
+		
+		public final int code;
+		
+		private DisconnectReason(int code) {
+			this.code = code;
+		}
+		
+		public static DisconnectReason reasonFromCode(int code) { 
+			for (DisconnectReason reason : values()) {
+				if (reason.code == code) {
+					return reason;
+				}
+			}
+			return null;
+		}
+	}
+	
+	
   /**
    * The connection closed normally, either the server or the client sent a
    *  message saying the connection was to be terminated.
    */
   public static final byte REASON_CLOSED  = 0;
-  /**
-   * The server/client connection timed out, either due to a crash or due to a
-   *  loss of Internet connection.
-   */
+  
   public static final byte REASON_TIMEOUT = 1;
   /**
    * The server/client connection closed unexpectedly, the reason is unknown.
@@ -64,18 +105,9 @@ public interface ConnectionManagerInterface {
   
   /**
    * This method is invoked when the server/client is disconnected. The
-   *  {@code reason} specified the cause for the disconnect, and the
-   *  {@code message} may contain additional information.
-   * </br>
-   * </br>The reason should be one of the following:
-   * <ul>
-   *  <li>{@link #REASON_CLOSED}</li>
-   *  <li>{@link #REASON_TIMEOUT}</li>
-   * </ul>
+   *  {@code reason} specified the cause for the disconnect.
    * @param connector The connector that was disconnected
-   * @param reason The reason why the serer/client was disconnected
-   * @param message Additional information regarding the disconnection, may be
-   *  <code>null</code>
+   * @param reason The reason why the server/client was disconnected
    */
-  public abstract void disconnected(AbstractConnection connector, byte reason, String message);
+  public abstract void disconnected(AbstractConnection connector, DisconnectReason reason);
 }
