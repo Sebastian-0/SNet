@@ -23,20 +23,27 @@ import sutilities.Debugger;
 
 public class ServerConnectionListener {
   private ConnectionManagerInterface manager;
+  private volatile boolean useTcpNoDelay;
+
+  private ServerSocket serverSocket;
+  private volatile int port;
   
   private volatile Map<String, ServerConnection> connections;
 
-  private volatile int port;
-  private volatile boolean couldNotConnect;
-  
-  private ServerSocket serverSocket;
-  
+  private volatile boolean couldNotHost;
   private volatile boolean isRunning;
   
   
-  public ServerConnectionListener(ConnectionManagerInterface manager, int port) {
+  /**
+   * Creates a server that listens for client connections at the specified port.
+   * @param manager The connection manager to connect this server with
+   * @param port The port to listen at
+   * @param useTcpNoDelay Whether or not Nagle's algorithm should be disabled for the client sockets
+   */
+  public ServerConnectionListener(ConnectionManagerInterface manager, int port, boolean useTcpNoDelay) {
     this.manager = manager;
     this.port = port;
+    this.useTcpNoDelay = useTcpNoDelay;
     
     connections = Collections.synchronizedMap(new HashMap<String, ServerConnection>());
     
@@ -104,11 +111,12 @@ public class ServerConnectionListener {
   }
   
   /**
-   * Returns true if this server failed to initialize.
+   * Returns true if this server failed to initialize. This either means that the
+   *  port was occupied or that the server socket failed to start.
    * @return True if this server failed to initialize
    */
   public boolean couldNotConnect() {
-    return couldNotConnect;
+    return couldNotHost;
   }
   
   
@@ -143,14 +151,14 @@ public class ServerConnectionListener {
     @Override
     public void run() {
       if (!isPortAvailable(port)) {
-        startFailed();
+        startFailed(null);
         return;
       }
       
       try {
         serverSocket = new ServerSocket(port);
-      } catch (IOException e1) {
-        startFailed();
+      } catch (IOException e) {
+        startFailed(e);
         return;
       }
       if (Thread.interrupted()) // The server was stopped while starting
@@ -162,10 +170,10 @@ public class ServerConnectionListener {
       while (isRunning) {
         try {
           Socket newSocket = serverSocket.accept();
-          newSocket.setTcpNoDelay(true);
+          newSocket.setTcpNoDelay(useTcpNoDelay);
           newSocket.setSoTimeout(0);
           
-          ServerConnection connection = new ServerConnection(manager, newSocket, ServerConnectionListener.this);
+          ServerConnection connection = new ServerConnection(manager, newSocket, ServerConnectionListener.this, useTcpNoDelay);
           
           while (connections.get(connection.getId()) != null)
             connection.generateId();
@@ -192,10 +200,10 @@ public class ServerConnectionListener {
       return true;
     }
 
-    private void startFailed() {
+    private void startFailed(Throwable e) {
       isRunning = false;
-      couldNotConnect = true;
-      Debugger.error("Server: Thread: startFailed()", "Socket already used!");
+      couldNotHost = true;
+      Debugger.error("Server: Thread: startFailed()", "Socket already used (or the server socket failed to start)!", e);
       manager.failedToStart(ServerConnectionListener.this, null);
     }
   };

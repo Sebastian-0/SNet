@@ -48,7 +48,7 @@ public class Client extends Network {
    * @param port The host port
    */
 	public void start(String host, int port) {
-		connection = new ClientConnection(connectionManager, host, port);
+		connection = new ClientConnection(connectionManager, host, port, useTcpNoDelay);
 	}
   
 
@@ -70,14 +70,24 @@ public class Client extends Network {
   
   @Override
 	public void sendToAll(Message message) {
-    if (connection != null)
-      throw new UnsupportedOperationException("This operation is only supported for servers");
+    throw new UnsupportedOperationException("This operation is only supported for servers");
   }
   
   @Override
 	public void forward(Message message) {
+    throw new UnsupportedOperationException("This operation is only supported for servers");
+  }
+  
+  
+  @Override
+  public void flush() {
     if (connection != null)
-      throw new UnsupportedOperationException("This operation is only supported for servers");
+      connection.flush();
+  }
+  
+  @Override
+  public void flush(String id) {
+    throw new UnsupportedOperationException("This verson of flush is only supported for servers");
   }
   
   

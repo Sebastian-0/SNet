@@ -22,11 +22,27 @@ public class ClientConnection extends AbstractConnection {
   private volatile String host;
   private volatile int    port;
   
-  private volatile boolean couldNotConnect_;
+  private volatile boolean couldNotConnect;
   
-  
+
+  /**
+   * Opens a connection to the specified host using the specified port.
+   * @param manager The connection manager to connect this connection with
+   * @param host The target host
+   * @param port The target port
+   */
   public ClientConnection(ConnectionManagerInterface manager, String host, int port) {
-    super (manager);
+    this (manager, host, port, false);
+  }
+  /**
+   * Opens a connection to the specified host using the specified port.
+   * @param manager The connection manager to connect this connection with
+   * @param host The target host
+   * @param port The target port
+   * @param useTcpNoDelay Whether or not Nagle's algorithm is disabled for the socket
+   */
+  public ClientConnection(ConnectionManagerInterface manager, String host, int port, boolean useTcpNoDelay) {
+    super (manager, useTcpNoDelay);
     
     this.host = host;
     this.port = port;
@@ -39,7 +55,7 @@ public class ClientConnection extends AbstractConnection {
    * @return True if this client failed to connect to the server
    */
   public boolean couldNotConnect() {
-    return couldNotConnect_;
+    return couldNotConnect;
   }
   
   /**
@@ -73,16 +89,16 @@ public class ClientConnection extends AbstractConnection {
     @Override
     public void run() {
       // Attempt connection
-      // TODO Client; Dela in detta i flera try-statements för att lättare hitta fel?
+      // TODO Client; Split into several try-statements to make it easier to detect errors?
       try {
         socket = new Socket(host, port);
-        socket.setTcpNoDelay(true);
+        socket.setTcpNoDelay(useTcpNoDelay);
         reader = new InputStreamReader (socket.getInputStream (), Charset.forName("UTF-8"));
         writer = new OutputStreamWriter(socket.getOutputStream(), Charset.forName("UTF-8"));
         isConnected = true;
       } catch (IOException e) {
         System.out.println("Client: <init>(): Unable to create socket! Host unreachable!");
-        couldNotConnect_ = true;
+        couldNotConnect = true;
         connectionManager.failedToStart(null, ClientConnection.this);
         return;
       }

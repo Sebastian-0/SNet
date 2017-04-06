@@ -58,19 +58,6 @@ public interface ConnectionManagerInterface {
 			return null;
 		}
 	}
-	
-	
-  /**
-   * The connection closed normally, either the server or the client sent a
-   *  message saying the connection was to be terminated.
-   */
-  public static final byte REASON_CLOSED  = 0;
-  
-  public static final byte REASON_TIMEOUT = 1;
-  /**
-   * The server/client connection closed unexpectedly, the reason is unknown.
-   */
-  public static final byte REASON_LOST_CONNECTION = 2;
   
   /**
    * This method is invoked by the client/server when a message has been

@@ -37,11 +37,15 @@ public abstract class Network {
   private BlockingQueue<Message> queuedMessages;
   private boolean waitForPoll;
   
+  protected boolean useTcpNoDelay;
+  
   
   public Network() {
     queuedMessages = new LinkedBlockingQueue<Message>();
     networkHooks = new HashMap<Character, NetworkHook<?>>();
     networkHooksByClass = new HashMap<Class<?>, NetworkHook<?>>();
+    
+    useTcpNoDelay = true;
   }
   
   
@@ -57,15 +61,27 @@ public abstract class Network {
   public void setWaitForPoll(boolean shouldWaitforPoll) {
     waitForPoll = shouldWaitforPoll;
   }
+  
+  
+  /**
+   * Sets whether or not to use the TCP no delay setting on the socket. Setting this to
+   *  <code>true</code> will disable Nagle's algorithm and make the sockets send their messages
+   *  immediately when they are written. If you leaves this value as <code>false</code> you
+   *  will need to call {@link Network#flush()} when you are done writing your messages.
+   * @param shouldUseTcpNoDelay The new state
+   */
+  public void setUseTcpNoDelay(boolean shouldUseTcpNoDelay) {
+    useTcpNoDelay = shouldUseTcpNoDelay;
+  }
 
   
-	protected void receivedMessage(Message message) {
-		if (waitForPoll) {
+  protected void receivedMessage(Message message) {
+    if (waitForPoll) {
       queuedMessages.offer(message);
     } else {
       processMessage(message, "CM: receivedMessage()");
     }
-	}
+  }
   
   
   /**
@@ -103,9 +119,9 @@ public abstract class Network {
     }
   }
 
-	protected abstract void dispatchMessage(Message message, NetworkHook<?> hook);
+  protected abstract void dispatchMessage(Message message, NetworkHook<?> hook);
   
-	
+  
   /**
    * Sends the specified message to the server. If this is the server the 
    *  behavior is undefined. Remember to parse the message using the appropriate
@@ -144,6 +160,21 @@ public abstract class Network {
    * @param message The message to forward
    */
   public abstract void forward(Message message);
+
+  /**
+   * Flushes all the sockets so that all buffered messages are sent. If you have
+   *  set {@link Network#setUseTcpNoDelay(boolean)} to <code>true</code> you will
+   *  not have to call this method.
+   */
+  public abstract void flush();
+  /**
+   * Flushes all the sockets so that all buffered messages are sent. If you have
+   *  set {@link Network#setUseTcpNoDelay(boolean)} to <code>true</code> you will
+   *  not have to call this method.
+   * @param id The id of the client whose socket you want to flush
+   * @throws IllegalArgumentException If the id is invalid
+   */
+  public abstract void flush(String id);
   
   
   /**
@@ -170,26 +201,6 @@ public abstract class Network {
   public abstract boolean connectionFailed();
   
   
-//  /**
-//   * Returns whether or not this network is a server or not.
-//   * @return Whether or not this network is a server or not
-//   */
-//  public boolean isServer()
-//  {
-//    return server_ != null;
-//  }
-//  
-//  
-//  /**
-//   * Returns whether or not this network is a client or not.
-//   * @return Whether or not this network is a client or not
-//   */
-//  public boolean isClient()
-//  {
-//    return client_ != null;
-//  }
-  
-  
   /**
    * Register a network hook to the network system. When a hook is registered
    *  messages of its type will automatically be redirected to that network hook.
@@ -203,7 +214,7 @@ public abstract class Network {
       networkHooksByClass.put(networkHook.getClass(), networkHook);
     }
     else {
-    	throw new IllegalArgumentException("There was already a network hook with the command code: " + commandCodeString(networkHook.getCommandCode()));
+      throw new IllegalArgumentException("There was already a network hook with the command code: " + commandCodeString(networkHook.getCommandCode()));
     }
   }
   
@@ -218,7 +229,7 @@ public abstract class Network {
    * @return Any network hook registered using the specified command code
    */
   public NetworkHook<?> getNetworkHook(char commandCode) {
-  	return networkHooks.get(commandCode);
+    return networkHooks.get(commandCode);
   }
   /**
    * Returns any network hook that is if the specified class, or 
@@ -227,6 +238,6 @@ public abstract class Network {
    * @return Any network hook that is if the specified class
    */
   public NetworkHook<?> getNetworkHook(Class<?> hookClass) {
-  	return networkHooksByClass.get(hookClass);
+    return networkHooksByClass.get(hookClass);
   }
 }

@@ -34,15 +34,15 @@ public class ServerConnection extends AbstractConnection {
    * @param manager The connection manager to use
    * @param socket The socket to link this listener to
    * @param server The server this listener belongs to
+   * @param useTcpNoDelay Whether or not Nagle's algorithm is disabled for the socket
    */
-  public ServerConnection(ConnectionManagerInterface manager, Socket socket, ServerConnectionListener server) {
-    super (manager);
+  public ServerConnection(ConnectionManagerInterface manager, Socket socket, ServerConnectionListener server, boolean useTcpNoDelay) {
+    super (manager, useTcpNoDelay);
     
     generateId();
     
-    this.server = server;
-    
     this.socket = socket;
+    this.server = server;
     
     isConnected = true;
     connectionThread.start();

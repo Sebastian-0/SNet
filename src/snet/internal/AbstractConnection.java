@@ -78,6 +78,9 @@ public abstract class AbstractConnection {
   protected volatile boolean isClosing;
   protected volatile boolean isConnected;
   
+  protected volatile boolean useTcpNoDelay;
+  private volatile boolean shouldFlush;
+  
   
   protected volatile Queue<String> messages;
   
@@ -104,9 +107,11 @@ public abstract class AbstractConnection {
    * Initializes the data of the {@code AbstractConnector} and connects it with
    *  the specified connection manager.
    * @param manager The connection manager to connect this connection with
+   * @param useTcpNoDelay Whether or not Nagle's algorithm is disabled for the socket
    */
-  public AbstractConnection(ConnectionManagerInterface manager) {
+  public AbstractConnection(ConnectionManagerInterface manager, boolean useTcpNoDelay) {
     this.connectionManager = manager;
+    this.useTcpNoDelay = useTcpNoDelay;
     
     messages = new SynchronizedQueue<String>(new LinkedList<String>());
     
@@ -164,6 +169,19 @@ public abstract class AbstractConnection {
   public void send(String message) {
     if (!isClosing) {
       messages.offer(SEPARATOR_CHAR + message + SEPARATOR_CHAR);
+      lock.lock();
+      condition.signalAll();
+      lock.unlock();
+    }
+  }
+  
+  /**
+   * Flushes the output buffer and sends all lingering messages over the network.
+   *  If the connection was made with TCP no delay activated this method has no effect.
+   */
+  public void flush() {
+    if (!isClosing) {
+      shouldFlush = true;
       lock.lock();
       condition.signalAll();
       lock.unlock();
@@ -261,9 +279,12 @@ public abstract class AbstractConnection {
     while (!messages.isEmpty() && c++ < s)
       writeString(messages.poll());
     
-    try {
-      writer.flush();
-    } catch (IOException e) { }
+    if (shouldFlush || useTcpNoDelay) {
+      try {
+        writer.flush();
+      } catch (IOException e) { }
+      shouldFlush = false;
+    }
   }
   
   

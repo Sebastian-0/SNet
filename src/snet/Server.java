@@ -49,7 +49,7 @@ public class Server extends Network {
    * @param port The port to use
    */
 	public void start(int port) {
-		connectionListener = new ServerConnectionListener(connectionManager, port);
+		connectionListener = new ServerConnectionListener(connectionManager, port, useTcpNoDelay);
 	}
   
   @Override
@@ -84,6 +84,33 @@ public class Server extends Network {
 	public void forward(Message message) {
     if (connectionListener != null)
       connectionListener.forward(message);
+  }
+  
+  /**
+   * {@inheritDoc}
+   * <br />
+   * <br /> <b>Note:</b> This method flushes the sockets of all the clients, it might be
+   *  more efficient to call {@link Server#flush(String)} if you only want to flush a
+   *  single client.
+   */
+  @Override
+  public void flush() {
+    if (connectionListener != null) {
+      for (ServerConnection connection : connectionListener.getConnections().values()) {
+        connection.flush();
+      }
+    }
+  }
+  
+  @Override
+  public void flush(String id) {
+    if (connectionListener != null) {
+      ServerConnection connection = connectionListener.getConnections().get(id);
+      if (connection != null)
+        connection.flush();
+      else
+        throw new IllegalArgumentException("No client with id: " + id);
+    }
   }
   
   
