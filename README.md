@@ -1,3 +1,5 @@
+[![Release](https://jitpack.io/v/Sebastian-0/SNet.svg)](https://jitpack.io/#Sebastian-0/SNet)
+
 # SNet
 This networking library is aimed at making it easier to integrate online-content into programs without having to rewrite the basic
 communication system each time. The system is based on the client-server architecture and can manage an arbitrary amount of 
