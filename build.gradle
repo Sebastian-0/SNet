@@ -1,41 +1,22 @@
 plugins {
-    id 'maven-publish'
+    id 'net.researchgate.release' version '2.6.0'
     id 'java'
     id 'idea'
 }
 
 group 'io.github.sebastian-0'
 
-version '1.0.0-SNAPSHOT'
-
 repositories {
     mavenCentral()
     mavenLocal()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation "io.github.sebastian-0:utilities:1.0.0"
+    implementation 'com.github.Sebastian-0:Utilities:1.0.1'
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Sebastian-0/SNet")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
-            }
-        }
-    }
-    publications {
-        gpr(MavenPublication) {
-            from(components.java)
-        }
-    }
 }
